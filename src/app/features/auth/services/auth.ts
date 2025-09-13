@@ -73,10 +73,10 @@ export class AuthService {
     const newUser: User = {
       id: this.users.length + 1,
       name: userData.name,
+      phone: userData.phone,
       email: userData.email,
       role: 'user',
       createdAt: new Date(),
-      phone: userData.phone,
     };
 
     // Ajouter aux mock data

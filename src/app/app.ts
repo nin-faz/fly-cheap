@@ -7,7 +7,9 @@ import { FooterComponent } from './shared/components/footer/footer';
   imports: [RouterOutlet, HeaderComponent, FooterComponent],
   template: `
     <app-header></app-header>
-    <router-outlet></router-outlet>
+    <main class="container mx-auto py-20 bg-gradient-to-br from-blue-50 to-blue-200">
+      <router-outlet></router-outlet>
+    </main>
     <app-footer></app-footer>
   `,
   styleUrls: [],

@@ -22,9 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatIconModule,
   ],
   template: `
-    <div
-      class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-200"
-    >
+    <div class="min-h-screen flex items-center justify-center">
       <mat-card class="w-full max-w-md p-8 pt-16 shadow-xl rounded-2xl">
         <div class="flex flex-col items-center mb-8">
           <div class="bg-white rounded-full absolute z-20 shadow-lg p-3 -mt-32">
