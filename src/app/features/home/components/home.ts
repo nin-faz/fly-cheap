@@ -1,19 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-
 import { SearchBarComponent } from '../components/search-bar/search-bar';
+import { FlightsListComponent } from '../components/flights-list/flights-list';
+import { FlightService } from '../../flights/services/flight';
+import { Flight } from '../../flights/models/flight';
 
 @Component({
   selector: 'app-home',
-  standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -21,6 +24,7 @@ import { SearchBarComponent } from '../components/search-bar/search-bar';
     MatInputModule,
     RouterLink,
     SearchBarComponent,
+    FlightsListComponent,
   ],
   template: `
     <!-- Hero Section -->
@@ -31,39 +35,70 @@ import { SearchBarComponent } from '../components/search-bar/search-bar';
             Découvrez les vols les moins chers du monde entier
           </p>
 
-          <!-- Search Card -->
-          <!-- <mat-card
-            class="max-w-4xl mx-auto p-8 shadow-2xl rounded-3xl bg-white/90 backdrop-blur-sm"
-          >
-            <h2 class="text-2xl font-bold text-blue-700 mb-6">Rechercher votre vol idéal</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <mat-form-field appearance="fill" class="w-full">
-                <mat-label>Départ</mat-label>
-                <input matInput placeholder="Paris (CDG)" />
-                <mat-icon matSuffix>flight_takeoff</mat-icon>
-              </mat-form-field>
-              <mat-form-field appearance="fill" class="w-full">
-                <mat-label>Arrivée</mat-label>
-                <input matInput placeholder="New York (JFK)" />
-                <mat-icon matSuffix>flight_land</mat-icon>
-              </mat-form-field>
-              <mat-form-field appearance="fill" class="w-full">
-                <mat-label>Départ</mat-label>
-                <input matInput type="date" />
-                <mat-icon matSuffix>calendar_today</mat-icon>
-              </mat-form-field>
-              <mat-form-field appearance="fill" class="w-full">
-                <mat-label>Retour</mat-label>
-                <input matInput type="date" />
-                <mat-icon matSuffix>calendar_today</mat-icon>
-              </mat-form-field>
-            </div>
-            <button mat-raised-button color="primary" class="w-full md:w-auto text-lg px-8 py-3">
-              <mat-icon class="mr-2">search</mat-icon>
-              Rechercher les vols
-            </button>
-          </mat-card> -->
+          <!-- Search Bar -->
           <app-search-bar (searchFlights)="onSearchFlights($event)"></app-search-bar>
+
+          <!-- Filtres et tri -->
+          <div class="max-w-4xl mx-auto p-6">
+            <div class="flex items-center justify-between mb-8">
+              <div class="flex items-center gap-3">
+                <mat-icon class="text-blue-600 text-3xl">flight</mat-icon>
+                <h2 class="text-3xl font-bold text-blue-800">Vols disponibles</h2>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <div class="relative">
+                  <select
+                    [ngModel]="sortBy"
+                    (ngModelChange)="onSortChange($event)"
+                    class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-48"
+                  >
+                    <option value="price">Prix croissant</option>
+                    <option value="price-desc">Prix décroissant</option>
+                    <option value="duration">Durée</option>
+                    <option value="departure">Heure de départ</option>
+                  </select>
+                  <mat-icon
+                    class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none"
+                    >keyboard_arrow_down</mat-icon
+                  >
+                </div>
+
+                <div class="relative">
+                  <select
+                    [ngModel]="filterBy"
+                    (ngModelChange)="onFilterChange($event)"
+                    class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-48"
+                  >
+                    <option value="all">Tous les vols</option>
+                    <option value="direct">Vols directs</option>
+                    <option value="wizz">Wizz Air</option>
+                    <option value="easyjet">easyJet</option>
+                    <option value="ryanair">Ryanair</option>
+                    <option value="transavia">Transavia</option>
+                    <option value="aegean">Aegean</option>
+                  </select>
+                  <mat-icon
+                    class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none"
+                    >keyboard_arrow_down</mat-icon
+                  >
+                </div>
+
+                <button
+                  mat-stroked-button
+                  color="primary"
+                  (click)="resetFiltersAndSort()"
+                  class="px-4 py-2"
+                >
+                  <mat-icon class="mr-2">refresh</mat-icon>
+                  Réinitialiser
+                </button>
+              </div>
+            </div>
+
+            <!-- Search Card -->
+            <app-flights-list [flights]="searchResults"></app-flights-list>
+          </div>
         </div>
       </div>
     </section>
@@ -180,15 +215,57 @@ import { SearchBarComponent } from '../components/search-bar/search-bar';
   `,
   styles: '',
 })
-export class HomeComponent {
-  // Cette méthode sera déclenchée quand le SearchBar émettra ses données
+export class HomeComponent implements OnInit {
+  searchResults: Flight[] = [];
+
+  private readonly flightService = inject(FlightService);
+
+  sortBy = 'price';
+  filterBy = 'all';
+
+  ngOnInit() {
+    this.loadFlights();
+  }
+
+  private loadFlights() {
+    this.searchResults = this.flightService.getFlights();
+  }
+
   onSearchFlights(searchData: {
     departure: string;
     destination: string;
     departureDate: string;
     returnDate: string;
   }) {
-    console.log('[Home] recherche reçue :', searchData);
-    // Ici on pourra appeler l’API pour chercher les vols
+    this.searchResults = this.flightService.searchFlights(searchData);
+    this.applyFiltersAndSort();
+  }
+
+  onFilterChange(filter: string) {
+    this.filterBy = filter;
+    const filtered = this.flightService.filterFlights(
+      this.flightService.getFlights(),
+      this.filterBy,
+    );
+    this.searchResults = this.flightService.sortFlights(filtered, this.sortBy);
+  }
+
+  onSortChange(sort: string) {
+    this.sortBy = sort;
+    this.searchResults = this.flightService.sortFlights(this.searchResults, this.sortBy);
+  }
+
+  resetFiltersAndSort() {
+    this.sortBy = 'price';
+    this.filterBy = 'all';
+    this.loadFlights();
+  }
+
+  private applyFiltersAndSort() {
+    // Filtrer
+    const filtered = this.flightService.filterFlights(this.searchResults, this.filterBy);
+
+    // Trier
+    this.searchResults = this.flightService.sortFlights(filtered, this.sortBy);
   }
 }
