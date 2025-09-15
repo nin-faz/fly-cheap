@@ -7,6 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
 
+import { SearchBarComponent } from '../components/search-bar/search-bar';
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -18,6 +20,7 @@ import { RouterLink } from '@angular/router';
     MatFormFieldModule,
     MatInputModule,
     RouterLink,
+    SearchBarComponent,
   ],
   template: `
     <!-- Hero Section -->
@@ -29,7 +32,7 @@ import { RouterLink } from '@angular/router';
           </p>
 
           <!-- Search Card -->
-          <mat-card
+          <!-- <mat-card
             class="max-w-4xl mx-auto p-8 shadow-2xl rounded-3xl bg-white/90 backdrop-blur-sm"
           >
             <h2 class="text-2xl font-bold text-blue-700 mb-6">Rechercher votre vol idéal</h2>
@@ -59,7 +62,8 @@ import { RouterLink } from '@angular/router';
               <mat-icon class="mr-2">search</mat-icon>
               Rechercher les vols
             </button>
-          </mat-card>
+          </mat-card> -->
+          <app-search-bar (searchFlights)="onSearchFlights($event)"></app-search-bar>
         </div>
       </div>
     </section>
@@ -177,8 +181,14 @@ import { RouterLink } from '@angular/router';
   styles: '',
 })
 export class HomeComponent {
-  departure = '';
-  destination = '';
-  departureDate = '';
-  returnDate = '';
+  // Cette méthode sera déclenchée quand le SearchBar émettra ses données
+  onSearchFlights(searchData: {
+    departure: string;
+    destination: string;
+    departureDate: string;
+    returnDate: string;
+  }) {
+    console.log('[Home] recherche reçue :', searchData);
+    // Ici on pourra appeler l’API pour chercher les vols
+  }
 }
