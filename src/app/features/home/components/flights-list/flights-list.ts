@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,6 +17,7 @@ import { Flight } from '../../../flights/models/flight';
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -101,7 +103,7 @@ import { Flight } from '../../../flights/models/flight';
                         mat-stroked-button
                         color="primary"
                         class="flex-1 lg:flex-none px-6 py-2"
-                        (click)="viewDetails(flight)"
+                        [routerLink]="['/flights', flight.id]"
                       >
                         <mat-icon class="mr-2">info</mat-icon>
                         Voir les détails
@@ -135,11 +137,6 @@ import { Flight } from '../../../flights/models/flight';
 })
 export class FlightsListComponent {
   @Input() flights: Flight[] = [];
-
-  viewDetails(flight: Flight) {
-    // Logique pour afficher les détails du vol
-    console.log(`Détails du vol ${flight.flightNumber}`);
-  }
 
   bookFlight(flight: Flight) {
     // Logique pour réserver le vol
