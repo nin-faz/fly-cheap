@@ -23,12 +23,13 @@ import { MatDividerModule } from '@angular/material/divider';
       class="relative flex items-center justify-between px-16 py-5 bg-blue-200 text-white shadow-md overflow-visible"
     >
       <div class="flex items-center gap-3">
-        <img
-          src="assets/logo-fly.png"
-          alt="Logo"
-          class="h-22 w-32 rounded-full cursor-pointer drop-shadow-xl absolute -ml-6 z-20"
-          onclick="onLogoClick()"
-        />
+        <a routerLink="/" class="block" aria-label="Retour à l'accueil">
+          <img
+            src="assets/logo-fly.png"
+            alt="Logo FlyCheap"
+            class="h-22 w-32 rounded-full drop-shadow-xl absolute -ml-6 -mt-16 z-20 cursor-pointer"
+          />
+        </a>
       </div>
 
       <div class="flex items-center gap-6">
@@ -76,10 +77,6 @@ export class HeaderComponent {
   constructor() {
     // Utiliser directement le signal du service
     this.currentUser = this.authService.currentUser$;
-  }
-
-  onLogoClick() {
-    this.router.navigate(['/']);
   }
 
   goToAccount() {
