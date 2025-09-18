@@ -112,7 +112,7 @@ import { Flight } from '../../../flights/models/flight';
                         mat-raised-button
                         color="primary"
                         class="flex-1 lg:flex-none px-6 py-2"
-                        (click)="bookFlight(flight)"
+                        [routerLink]="['/booking', flight.id]"
                       >
                         <mat-icon class="mr-2">flight</mat-icon>
                         Réserver
@@ -137,9 +137,4 @@ import { Flight } from '../../../flights/models/flight';
 })
 export class FlightsListComponent {
   @Input() flights: Flight[] = [];
-
-  bookFlight(flight: Flight) {
-    // Logique pour réserver le vol
-    console.log(`Réservation du vol ${flight.flightNumber}`);
-  }
 }

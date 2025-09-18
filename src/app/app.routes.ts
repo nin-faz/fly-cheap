@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-// import { authGuard } from './core/guards/auth-guard';
+import { authGuard } from './core/guards/auth-guard';
 // import { adminGuard } from './core/guards/admin-guard';
 
 export const routes: Routes = [
@@ -14,6 +14,11 @@ export const routes: Routes = [
   {
     path: 'flights',
     loadChildren: () => import('./features/flights/flight.route').then((m) => m.FLIGHT_ROUTES),
+  },
+  {
+    path: 'booking',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/booking/booking.route').then((m) => m.BOOKING_ROUTES),
   },
   // {
   //   path: 'account',
