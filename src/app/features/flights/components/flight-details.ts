@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FlightService } from '../services/flight';
 import { Flight } from '../models/flight';
 import { MatCardModule } from '@angular/material/card';
@@ -251,6 +251,8 @@ export class FlightDetailsComponent implements OnInit {
   private readonly flightService = inject(FlightService);
   private readonly router = inject(Router);
 
+  private readonly location = inject(Location);
+
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -259,6 +261,6 @@ export class FlightDetailsComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/']);
+    this.location.back();
   }
 }

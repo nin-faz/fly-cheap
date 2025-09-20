@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,7 +15,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Flight } from '../../flights/models/flight';
 import { FlightService } from '../../flights/services/flight';
 import { BookingService } from '../services/booking';
-import { User } from '../../auth/models/user';
+import { AuthService } from '../../auth/services/auth';
 import { Booking } from '../models/booking';
 
 @Component({
@@ -123,7 +123,7 @@ import { Booking } from '../models/booking';
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <mat-form-field class="w-full">
-                <mat-label>Nom de famille</mat-label>
+                <mat-label>Nom</mat-label>
                 <input matInput [(ngModel)]="passenger.name" required />
                 <mat-icon matSuffix>person</mat-icon>
               </mat-form-field>
@@ -137,9 +137,9 @@ import { Booking } from '../models/booking';
               <mat-form-field class="w-full">
                 <mat-label>Type de passager</mat-label>
                 <mat-select [(ngModel)]="passenger.type">
-                  <mat-option value="adulte">Adulte (12+ ans)</mat-option>
-                  <mat-option value="enfant">Enfant (2-11 ans)</mat-option>
-                  <mat-option value="bébé">Bébé (0-23 mois)</mat-option>
+                  <mat-option value="Adulte">Adulte (12+ ans)</mat-option>
+                  <mat-option value="Enfant">Enfant (2-11 ans)</mat-option>
+                  <mat-option value="Bébé">Bébé (0-23 mois)</mat-option>
                 </mat-select>
               </mat-form-field>
 
@@ -286,13 +286,16 @@ export class BookingComponent implements OnInit {
   private readonly flightService = inject(FlightService);
   private readonly router = inject(Router);
   private readonly bookingService = inject(BookingService);
+  private readonly authService = inject(AuthService);
+
+  private readonly location = inject(Location);
 
   flight: Flight | undefined;
 
   passenger: Booking['passenger'] = {
     name: '',
     surname: '',
-    type: 'adulte',
+    type: 'Adulte',
     birthDate: '',
   };
 
@@ -310,7 +313,7 @@ export class BookingComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/flights', this.flight?.id]);
+    this.location.back();
   }
 
   getTotalPrice(): number {
@@ -327,23 +330,25 @@ export class BookingComponent implements OnInit {
 
   confirmBooking() {
     if (this.isFormValid() && this.flight) {
-      const currentUser: User = JSON.parse(localStorage.getItem('currentUser')!);
+      const currentUser = this.authService.getCurrentUser();
 
-      const booking: Booking = {
-        id: crypto.randomUUID(),
-        user: currentUser,
-        flight: this.flight,
-        passenger: this.passenger,
-        extras: this.extras,
-        totalPrice: this.getTotalPrice(),
-        createdAt: new Date(),
-        status: 'confirmed',
-      };
+      if (currentUser) {
+        // On crée l'objet sans l'id, car il sera généré par le service
+        const newBookingData: Omit<Booking, 'id'> = {
+          user: currentUser,
+          flight: this.flight,
+          passenger: this.passenger,
+          extras: this.extras,
+          totalPrice: this.getTotalPrice(),
+          createdAt: new Date(),
+          status: 'confirmed',
+        };
 
-      this.bookingService.addBooking(booking);
+        this.bookingService.addBooking(newBookingData);
 
-      alert(`Réservation confirmée ! Total: ${booking.totalPrice}€`);
-      this.router.navigate(['/']);
+        alert('Réservation confirmée !');
+        this.router.navigate(['/my-bookings']);
+      }
     }
   }
 }

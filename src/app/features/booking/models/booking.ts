@@ -1,15 +1,14 @@
-// src/app/booking/models/booking.ts
 import { Flight } from '../../flights/models/flight';
 import { User } from '../../auth/models/user';
 
 export interface Booking {
   id: string;
-  user: User; // utilisateur connecté qui réserve
-  flight: Flight; // vol réservé
+  user: User;
+  flight: Flight;
   passenger: {
     name: string;
     surname: string;
-    type: 'adulte' | 'enfant' | 'bébé';
+    type: 'Adulte' | 'Enfant' | 'Bébé';
     birthDate: string;
   };
   extras: {

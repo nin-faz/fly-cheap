@@ -20,6 +20,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadChildren: () => import('./features/booking/booking.route').then((m) => m.BOOKING_ROUTES),
   },
+  {
+    path: 'my-bookings',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/my-bookings/my-bookings.route').then((m) => m.MY_BOOKINGS_ROUTES),
+  },
+
   // {
   //   path: 'account',
   //   canActivate: [authGuard],
