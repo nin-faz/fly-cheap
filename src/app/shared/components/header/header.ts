@@ -50,7 +50,7 @@ import { MatDividerModule } from '@angular/material/divider';
               <mat-icon>person</mat-icon>
               <span>Mon compte</span>
             </button>
-            <button mat-menu-item routerLink="/bookings">
+            <button mat-menu-item routerLink="/my-bookings">
               <mat-icon>book_online</mat-icon>
               <span>Mes réservations</span>
             </button>

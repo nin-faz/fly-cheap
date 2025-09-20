@@ -85,8 +85,8 @@ export class SearchBarComponent {
       departureDate: this.departureDate,
       returnDate: this.returnDate,
     });
-    // ⚡ On envoie les infos au parent via l'EventEmitter
 
+    // ⚡ On envoie les infos au parent via l'EventEmitter
     this.searchFlights.emit({
       departure: this.departure,
       destination: this.destination,
