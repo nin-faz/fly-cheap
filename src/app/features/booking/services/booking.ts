@@ -119,8 +119,8 @@ export class BookingService {
     const newId = this.generateNewBookingId(this.bookings);
 
     const newBooking: Booking = {
-      ...booking,
       id: newId,
+      ...booking,
     };
 
     this.bookings.push(newBooking);
@@ -135,6 +135,11 @@ export class BookingService {
       return true;
     }
     return false;
+  }
+
+  deleteBookingsByUserId(userId: number): void {
+    this.bookings = this.bookings.filter((b) => b.user.id !== userId);
+    this.saveBookings(this.bookings);
   }
 
   deleteBooking(id: string): Observable<void> {

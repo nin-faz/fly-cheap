@@ -26,6 +26,11 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/my-bookings/my-bookings.route').then((m) => m.MY_BOOKINGS_ROUTES),
   },
+  {
+    path: 'my-account',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/user/user.routes').then((m) => m.USER_ROUTES),
+  },
 
   // {
   //   path: 'account',
