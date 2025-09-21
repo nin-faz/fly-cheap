@@ -46,7 +46,7 @@ import { MatDividerModule } from '@angular/material/divider';
               </button>
               <mat-divider></mat-divider>
             }
-            <button mat-menu-item routerLink="/account">
+            <button mat-menu-item routerLink="/my-account">
               <mat-icon>person</mat-icon>
               <span>Mon compte</span>
             </button>

@@ -159,8 +159,11 @@ export class RegisterComponent {
       const _ = confirmPassword;
 
       this.authService.register(userData).subscribe({
-        next: () => {
+        next: (newUser) => {
+          // Connexion automatique après inscription
+          this.authService.setCurrentUser(newUser);
           this.loading.set(false);
+          // Rediriger vers la page d'accueil maintenant connecté
           this.router.navigate(['/']);
         },
         error: (err) => {

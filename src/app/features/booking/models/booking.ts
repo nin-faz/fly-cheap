@@ -1,6 +1,5 @@
 import { Flight } from '../../flights/models/flight';
-import { User } from '../../auth/models/user';
-
+import { User } from '../../user/models/user';
 export interface Booking {
   id: string;
   user: User;

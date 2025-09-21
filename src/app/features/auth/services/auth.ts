@@ -1,5 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { User, LoginRequest, RegisterRequest } from '../models/user';
+import { LoginRequest, RegisterRequest } from '../models/user';
+import { User } from '../../user/models/user';
+import { BookingService } from '../../booking/services/booking';
 import { Observable, of, throwError, delay } from 'rxjs';
 
 @Injectable({
@@ -8,6 +10,8 @@ import { Observable, of, throwError, delay } from 'rxjs';
 export class AuthService {
   private readonly currentUser = signal<User | null>(null);
   public currentUser$ = this.currentUser.asReadonly();
+
+  private readonly bookingService = new BookingService();
 
   // Signal avec validation
   public isAdmin = computed(() => this.currentUser()?.role === 'admin');
@@ -105,6 +109,17 @@ export class AuthService {
     return of(this.users).pipe(delay(300));
   }
 
+  // PUT - Mettre à jour un utilisateur
+  updateUser(userId: number, updatedData: Partial<User>): Observable<User> {
+    const user = this.users.find((u) => u.id === userId);
+    if (user) {
+      Object.assign(user, updatedData);
+      this.saveUsersToStorage();
+      return of(user).pipe(delay(300));
+    }
+    return throwError(() => new Error('Utilisateur non trouvé'));
+  }
+
   deleteUser(userId: number): Observable<void> {
     const index = this.users.findIndex((u) => u.id === userId);
     if (index !== -1) {
@@ -113,6 +128,8 @@ export class AuthService {
       if (deletedUser && deletedUser.email) {
         delete this.passwords[deletedUser.email];
       }
+      // Supprimer toutes les réservations liées à cet utilisateur
+      this.bookingService.deleteBookingsByUserId(userId);
       this.saveUsersToStorage();
       return of(void 0).pipe(delay(300));
     }
