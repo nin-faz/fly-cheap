@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
-// import { adminGuard } from './core/guards/admin-guard';
+import { adminGuard } from './core/guards/admin-guard';
 
 export const routes: Routes = [
   {
@@ -31,20 +31,9 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadChildren: () => import('./features/user/user.routes').then((m) => m.USER_ROUTES),
   },
-
-  // {
-  //   path: 'account',
-  //   canActivate: [authGuard],
-  //   loadChildren: () => import('./features/user/user.routes').then((m) => m.USER_ROUTES),
-  // },
-  // {
-  //   path: 'bookings',
-  //   canActivate: [authGuard],
-  //   loadChildren: () => import('./features/booking/booking.routes').then((m) => m.BOOKING_ROUTES),
-  // },
-  // {
-  //   path: 'admin',
-  //   canActivate: [adminGuard],
-  //   loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
-  // },
+  {
+    path: 'admin',
+    canActivate: [adminGuard],
+    loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+  },
 ];
