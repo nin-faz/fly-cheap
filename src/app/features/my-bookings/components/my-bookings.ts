@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
+import { StatusHighlightDirective } from '../../../shared/directives/status-highlight.directive';
 
 @Component({
   selector: 'app-my-bookings',
@@ -20,6 +21,7 @@ import { MatDividerModule } from '@angular/material/divider';
     MatIconModule,
     MatChipsModule,
     MatDividerModule,
+    StatusHighlightDirective,
   ],
   template: `
     <div class="max-w-5xl mx-auto px-6">
@@ -61,11 +63,9 @@ import { MatDividerModule } from '@angular/material/divider';
                   </div>
                   <div class="text-right">
                     <div
-                      [class]="getStatusClass(booking.status)"
+                      [appStatusHighlight]="booking.status"
                       class="inline-block px-3 py-1 rounded-full text-sm font-semibold mb-2"
-                    >
-                      {{ getStatusLabel(booking.status) }}
-                    </div>
+                    ></div>
                     <div class="text-sm text-blue-200">Référence: #{{ booking.id }}</div>
                   </div>
                 </div>
@@ -156,11 +156,9 @@ import { MatDividerModule } from '@angular/material/divider';
                       <div class="flex justify-between">
                         <span class="text-gray-600">Statut:</span>
                         <div
-                          [class]="getStatusClass(booking.status)"
+                          [appStatusHighlight]="booking.status"
                           class="inline-block px-2 py-1 rounded text-xs font-semibold"
-                        >
-                          {{ getStatusLabel(booking.status) }}
-                        </div>
+                        ></div>
                       </div>
                     </div>
                   </mat-card>
@@ -298,28 +296,6 @@ export class MyBookingsComponent implements OnInit {
   async deleteBooking(id: string) {
     if (await this.myBookingsService.deleteMyBooking(id)) {
       this.loadBookings();
-    }
-  }
-
-  getStatusClass(status: string): string {
-    switch (status) {
-      case 'confirmed':
-        return 'bg-emerald-500 text-white';
-      case 'cancelled':
-        return 'bg-red-500 text-white';
-      default:
-        return 'bg-gray-500 text-white';
-    }
-  }
-
-  getStatusLabel(status: string): string {
-    switch (status) {
-      case 'confirmed':
-        return 'Confirmé';
-      case 'cancelled':
-        return 'Annulé';
-      default:
-        return 'Inconnu';
     }
   }
 }

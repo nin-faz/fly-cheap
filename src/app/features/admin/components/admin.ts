@@ -10,11 +10,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { forkJoin } from 'rxjs';
 import { BookingService } from '../../booking/services/booking';
+import { StatusHighlightDirective } from '../../../shared/directives/status-highlight.directive';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatTabsModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTabsModule,
+    StatusHighlightDirective,
+  ],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 py-8">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -232,13 +240,9 @@ import { BookingService } from '../../booking/services/booking';
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                               <span
-                                [class.bg-green-100]="booking.status === 'confirmed'"
-                                [class.text-green-800]="booking.status === 'confirmed'"
-                                [class.bg-red-100]="booking.status === 'cancelled'"
-                                [class.text-red-800]="booking.status === 'cancelled'"
+                                [appStatusHighlight]="booking.status"
                                 class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                               >
-                                {{ getStatusLabel(booking.status) }}
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -377,16 +381,5 @@ export class AdminComponent implements OnInit {
       }
       return total;
     }, 0);
-  }
-
-  getStatusLabel(status: string): string {
-    switch (status) {
-      case 'confirmed':
-        return 'Confirmé';
-      case 'cancelled':
-        return 'Annulé';
-      default:
-        return status;
-    }
   }
 }
