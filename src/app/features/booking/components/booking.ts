@@ -333,15 +333,12 @@ export class BookingComponent implements OnInit {
       const currentUser = this.authService.getCurrentUser();
 
       if (currentUser) {
-        // On crée l'objet sans l'id, car il sera généré par le service
-        const newBookingData: Omit<Booking, 'id'> = {
+        const newBookingData = {
           user: currentUser,
           flight: this.flight,
           passenger: this.passenger,
           extras: this.extras,
           totalPrice: this.getTotalPrice(),
-          createdAt: new Date(),
-          status: 'confirmed',
         };
 
         this.bookingService.addBooking(newBookingData);

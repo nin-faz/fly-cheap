@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -49,7 +49,7 @@ import { Flight } from '../../flights/models/flight';
               <div class="flex items-center gap-4">
                 <div class="relative">
                   <select
-                    [ngModel]="sortBy"
+                    [ngModel]="sortBy()"
                     (ngModelChange)="onSortChange($event)"
                     class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-48"
                   >
@@ -66,7 +66,7 @@ import { Flight } from '../../flights/models/flight';
 
                 <div class="relative">
                   <select
-                    [ngModel]="filterBy"
+                    [ngModel]="filterBy()"
                     (ngModelChange)="onFilterChange($event)"
                     class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-48"
                   >
@@ -97,7 +97,7 @@ import { Flight } from '../../flights/models/flight';
             </div>
 
             <!-- Search Card -->
-            <app-flights-list [flights]="searchResults"></app-flights-list>
+            <app-flights-list [flights]="searchResults()"></app-flights-list>
           </div>
         </div>
       </div>
@@ -215,21 +215,39 @@ import { Flight } from '../../flights/models/flight';
   `,
   styles: '',
 })
-export class HomeComponent implements OnInit {
-  searchResults: Flight[] = [];
-
+export class HomeComponent {
   private readonly flightService = inject(FlightService);
 
-  sortBy = 'price';
-  filterBy = 'all';
+  // Signals pour les filtres et le tri
+  readonly sortBy = signal<string>('price');
+  readonly filterBy = signal<string>('all');
+  readonly searchCriteria = signal<{
+    departure: string;
+    destination: string;
+    departureDate: string;
+    returnDate: string;
+  } | null>(null);
 
-  ngOnInit() {
-    this.loadFlights();
-  }
+  // Signal computed pour les résultats filtrés et triés
+  readonly searchResults = computed(() => {
+    const criteria = this.searchCriteria();
+    const filter = this.filterBy();
+    const sort = this.sortBy();
 
-  private loadFlights() {
-    this.searchResults = this.flightService.getFlights();
-  }
+    // Obtenir les vols de base
+    let flights: Flight[];
+    if (criteria) {
+      flights = this.flightService.searchFlights(criteria);
+    } else {
+      flights = this.flightService.getFlights();
+    }
+
+    // Appliquer le filtre
+    const filtered = this.flightService.filterFlights(flights, filter);
+
+    // Appliquer le tri
+    return this.flightService.sortFlights(filtered, sort);
+  });
 
   onSearchFlights(searchData: {
     departure: string;
@@ -237,35 +255,20 @@ export class HomeComponent implements OnInit {
     departureDate: string;
     returnDate: string;
   }) {
-    this.searchResults = this.flightService.searchFlights(searchData);
-    this.applyFiltersAndSort();
+    this.searchCriteria.set(searchData);
   }
 
   onFilterChange(filter: string) {
-    this.filterBy = filter;
-    const filtered = this.flightService.filterFlights(
-      this.flightService.getFlights(),
-      this.filterBy,
-    );
-    this.searchResults = this.flightService.sortFlights(filtered, this.sortBy);
+    this.filterBy.set(filter);
   }
 
   onSortChange(sort: string) {
-    this.sortBy = sort;
-    this.searchResults = this.flightService.sortFlights(this.searchResults, this.sortBy);
+    this.sortBy.set(sort);
   }
 
   resetFiltersAndSort() {
-    this.sortBy = 'price';
-    this.filterBy = 'all';
-    this.loadFlights();
-  }
-
-  private applyFiltersAndSort() {
-    // Filtrer
-    const filtered = this.flightService.filterFlights(this.searchResults, this.filterBy);
-
-    // Trier
-    this.searchResults = this.flightService.sortFlights(filtered, this.sortBy);
+    this.sortBy.set('price');
+    this.filterBy.set('all');
+    this.searchCriteria.set(null);
   }
 }

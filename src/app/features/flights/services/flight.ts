@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { Flight } from '../models/flight';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FlightService {
-  private readonly flights: Flight[] = [
+  private readonly flights = signal<Flight[]>([
     {
       id: '1',
       departure: 'Paris',
@@ -81,10 +81,24 @@ export class FlightService {
       flightNumber: 'A3 7890',
       stops: 0,
     },
-  ];
+  ]);
+
+  // Signals computed pour des statistiques utiles
+  public readonly flightsCount = computed(() => this.flights().length);
+  public readonly directFlightsCount = computed(
+    () => this.flights().filter((f) => f.stops === 0).length,
+  );
+  public readonly averagePrice = computed(() => {
+    const flights = this.flights();
+    if (flights.length === 0) return 0;
+    return Math.round(flights.reduce((sum, f) => sum + f.price, 0) / flights.length);
+  });
+
+  // Signal en lecture seule pour l'extérieur
+  public readonly flights$ = this.flights.asReadonly();
 
   getFlights(): Flight[] {
-    return [...this.flights];
+    return [...this.flights()];
   }
 
   searchFlights(criteria: {
@@ -93,14 +107,13 @@ export class FlightService {
     departureDate: string;
     returnDate: string;
   }): Flight[] {
-    return this.flights.filter(
+    return this.flights().filter(
       (f) =>
         f.departure.toLowerCase().includes(criteria.departure.toLowerCase()) &&
         f.destination.toLowerCase().includes(criteria.destination.toLowerCase()),
     );
   }
 
-  // FlightService
   filterFlights(flights: Flight[], filterBy: string): Flight[] {
     return flights.filter((f) => {
       switch (filterBy) {

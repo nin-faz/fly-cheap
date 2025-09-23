@@ -244,18 +244,6 @@ import { MatDividerModule } from '@angular/material/divider';
 
                 <!-- Actions -->
                 <div class="flex flex-col md:flex-row gap-4 justify-center mt-8">
-                  <!-- <button mat-stroked-button color="primary" class="px-6 py-2">
-                    <mat-icon class="mr-2">download</mat-icon>
-                    Télécharger le billet
-                  </button>
-                  <button mat-stroked-button color="primary" class="px-6 py-2">
-                    <mat-icon class="mr-2">email</mat-icon>
-                    Envoyer par email
-                  </button>
-                  <button mat-raised-button color="primary" class="px-6 py-2">
-                    <mat-icon class="mr-2">info</mat-icon>
-                    Voir les détails
-                  </button> -->
                   @if (booking.status === 'confirmed') {
                     <button
                       mat-raised-button
@@ -295,28 +283,28 @@ export class MyBookingsComponent implements OnInit {
     this.loadBookings();
   }
 
-  loadBookings() {
-    this.bookings = this.myBookingsService.getMyBookings();
+  async loadBookings() {
+    this.myBookingsService.getMyBookings().then((bookings) => {
+      this.bookings = bookings;
+    });
   }
 
-  cancelBooking(id: string) {
-    if (this.myBookingsService.cancelBooking(id)) {
+  async cancelBooking(id: string) {
+    if (await this.myBookingsService.cancelBooking(id)) {
       this.loadBookings();
     }
   }
 
-  deleteBooking(id: string) {
-    this.myBookingsService.deleteMyBooking(id).subscribe(() => {
+  async deleteBooking(id: string) {
+    if (await this.myBookingsService.deleteMyBooking(id)) {
       this.loadBookings();
-    });
+    }
   }
 
   getStatusClass(status: string): string {
     switch (status) {
       case 'confirmed':
         return 'bg-emerald-500 text-white';
-      case 'pending':
-        return 'bg-amber-500 text-white';
       case 'cancelled':
         return 'bg-red-500 text-white';
       default:
@@ -328,8 +316,6 @@ export class MyBookingsComponent implements OnInit {
     switch (status) {
       case 'confirmed':
         return 'Confirmé';
-      case 'pending':
-        return 'En attente';
       case 'cancelled':
         return 'Annulé';
       default:

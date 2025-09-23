@@ -13,18 +13,18 @@ export const routes: Routes = [
   },
   {
     path: 'flights',
-    loadChildren: () => import('./features/flights/flight.route').then((m) => m.FLIGHT_ROUTES),
+    loadChildren: () => import('./features/flights/flight.routes').then((m) => m.FLIGHT_ROUTES),
   },
   {
     path: 'booking',
     canActivate: [authGuard],
-    loadChildren: () => import('./features/booking/booking.route').then((m) => m.BOOKING_ROUTES),
+    loadChildren: () => import('./features/booking/booking.routes').then((m) => m.BOOKING_ROUTES),
   },
   {
     path: 'my-bookings',
     canActivate: [authGuard],
     loadChildren: () =>
-      import('./features/my-bookings/my-bookings.route').then((m) => m.MY_BOOKINGS_ROUTES),
+      import('./features/my-bookings/my-bookings.routes').then((m) => m.MY_BOOKINGS_ROUTES),
   },
   {
     path: 'my-account',

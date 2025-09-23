@@ -232,8 +232,6 @@ import { BookingService } from '../../booking/services/booking';
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                               <span
-                                [class.bg-yellow-100]="booking.status === 'pending'"
-                                [class.text-yellow-800]="booking.status === 'pending'"
                                 [class.bg-green-100]="booking.status === 'confirmed'"
                                 [class.text-green-800]="booking.status === 'confirmed'"
                                 [class.bg-red-100]="booking.status === 'cancelled'"
@@ -338,23 +336,24 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  deleteBooking(bookingId: string) {
+  async deleteBooking(bookingId: string) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?')) {
-      this.bookingService.deleteBooking(bookingId).subscribe({
-        next: () => {
+      try {
+        const deleted = await this.bookingService.deleteBooking(bookingId);
+        if (deleted) {
           this.loadData();
           alert('Réservation supprimée avec succès');
-        },
-        error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
-          alert('Erreur lors de la suppression de la réservation');
-        },
-      });
+        } else {
+          alert('Réservation introuvable');
+        }
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+        alert('Erreur lors de la suppression de la réservation');
+      }
     }
   }
 
   viewBooking(booking: Booking) {
-    console.log('Voir réservation:', booking);
     alert('Détails de la réservation:\n' + JSON.stringify(booking, null, 2));
   }
 
@@ -382,8 +381,6 @@ export class AdminComponent implements OnInit {
 
   getStatusLabel(status: string): string {
     switch (status) {
-      case 'pending':
-        return 'En attente';
       case 'confirmed':
         return 'Confirmé';
       case 'cancelled':
