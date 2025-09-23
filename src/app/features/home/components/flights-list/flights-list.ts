@@ -10,6 +10,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { Flight } from '../../../flights/models/flight';
+import { PricePipe } from '../../../../shared/pipes/price.pipe';
+import { FlightStops } from '../../../../shared/pipes/flightStops.pipe';
 
 @Component({
   selector: 'app-flights-list',
@@ -25,6 +27,8 @@ import { Flight } from '../../../flights/models/flight';
     MatSelectModule,
     MatFormFieldModule,
     MatMenuModule,
+    PricePipe,
+    FlightStops,
   ],
   template: `
     <div class="max-w-4xl mx-auto p-6">
@@ -36,7 +40,7 @@ import { Flight } from '../../../flights/models/flight';
             >
               <div class="p-6">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <!-- Itinéraire et horaires -->
+                  <!-- Route and time -->
                   <div class="flex-1">
                     <div class="flex items-center gap-4 mb-3">
                       <div class="text-center">
@@ -68,7 +72,7 @@ import { Flight } from '../../../flights/models/flight';
                       </div>
                     </div>
 
-                    <!-- Détails du vol -->
+                    <!-- Flight's details -->
                     <div class="flex flex-wrap gap-2 mb-2">
                       <mat-chip-set>
                         <mat-chip class="bg-green-100 text-green-800">{{
@@ -77,13 +81,9 @@ import { Flight } from '../../../flights/models/flight';
                         <mat-chip class="bg-blue-100 text-blue-800">{{
                           flight.flightNumber
                         }}</mat-chip>
-                        @if (flight.stops === 0) {
-                          <mat-chip class="bg-emerald-100 text-emerald-800">Vol direct</mat-chip>
-                        } @else {
-                          <mat-chip class="bg-orange-100 text-orange-800"
-                            >{{ flight.stops }} escale(s)</mat-chip
-                          >
-                        }
+                        <mat-chip class="bg-orange-100 text-orange-800">
+                          {{ flight.stops | flightStops }}
+                        </mat-chip>
                       </mat-chip-set>
                     </div>
                     <div class="text-sm text-gray-600">{{ flight.date }}</div>
@@ -95,7 +95,7 @@ import { Flight } from '../../../flights/models/flight';
                       class="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg p-4 mb-3"
                     >
                       <div class="text-sm opacity-90">À partir de</div>
-                      <div class="text-3xl font-bold">{{ flight.price }}€</div>
+                      <div class="text-3xl font-bold">{{ flight.price | price }}</div>
                       <div class="text-sm opacity-90">par personne</div>
                     </div>
                     <div class="flex flex-col lg:flex-row gap-2">

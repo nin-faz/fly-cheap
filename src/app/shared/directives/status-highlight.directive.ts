@@ -25,13 +25,12 @@ export class StatusHighlightDirective implements OnChanges {
   }
 
   private updateStatusDisplay(): void {
-    // Nettoyer les classes existantes
+    // Clean existing classes
     this.renderer.removeClass(this.el.nativeElement, 'bg-emerald-100');
     this.renderer.removeClass(this.el.nativeElement, 'text-emerald-800');
     this.renderer.removeClass(this.el.nativeElement, 'bg-red-100');
     this.renderer.removeClass(this.el.nativeElement, 'text-red-800');
 
-    // Appliquer les nouvelles classes selon le statut
     switch (this.status) {
       case 'confirmed':
         this.renderer.addClass(this.el.nativeElement, 'bg-emerald-100');
@@ -46,7 +45,7 @@ export class StatusHighlightDirective implements OnChanges {
         break;
     }
 
-    // Ajouter classes communes
+    // Add common classes
     this.renderer.addClass(this.el.nativeElement, 'px-2');
     this.renderer.addClass(this.el.nativeElement, 'py-1');
     this.renderer.addClass(this.el.nativeElement, 'rounded-full');

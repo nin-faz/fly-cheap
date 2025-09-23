@@ -83,13 +83,13 @@ import { MatCardModule } from '@angular/material/card';
   styles: '',
 })
 export class SearchBarComponent {
-  // Signals pour la réactivité
+  // Signals for reactivity
   readonly departure = signal<string>('');
   readonly destination = signal<string>('');
   readonly departureDate = signal<string>('');
   readonly returnDate = signal<string>('');
 
-  // Signal computed pour valider le formulaire
+  // Signal computed to validate the form
   readonly isFormValid = computed(
     () =>
       this.departure().trim().length > 0 ||
@@ -97,7 +97,7 @@ export class SearchBarComponent {
       this.departureDate().length > 0,
   );
 
-  // Signal computed pour obtenir les données du formulaire
+  // Signal computed to get the form data
   readonly searchData = computed(() => ({
     departure: this.departure(),
     destination: this.destination(),
@@ -105,7 +105,7 @@ export class SearchBarComponent {
     returnDate: this.returnDate(),
   }));
 
-  // Ici on déclare un "canal de communication" vers le parent
+  // Here we declare a "communication channel" to the parent
   @Output() searchFlights = new EventEmitter<{
     departure: string;
     destination: string;
@@ -113,9 +113,9 @@ export class SearchBarComponent {
     returnDate: string;
   }>();
 
-  // appelé pour le ngSubmit
   onSubmit(evt: Event) {
-    evt.preventDefault(); // empêche reload page
+    // prevent page reload
+    evt.preventDefault();
 
     if (!this.isFormValid()) {
       return;
@@ -123,7 +123,7 @@ export class SearchBarComponent {
 
     const searchData = this.searchData();
 
-    // ⚡ On envoie les infos au parent via l'EventEmitter
+    // We send the information to the parent via the EventEmitter
     this.searchFlights.emit(searchData);
   }
 }

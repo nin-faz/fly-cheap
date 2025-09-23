@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
+import { PricePipe } from '../../../shared/pipes/price.pipe';
+import { FlightStops } from '../../../shared/pipes/flightStops.pipe';
 
 @Component({
   selector: 'app-flight-details',
@@ -20,10 +22,12 @@ import { MatDividerModule } from '@angular/material/divider';
     MatChipsModule,
     MatDividerModule,
     RouterLink,
+    PricePipe,
+    FlightStops,
   ],
   template: `
     <div class="max-w-4xl mx-auto px-6">
-      <!-- Header avec bouton retour -->
+      <!-- Header with back button -->
       <div class="flex items-center gap-4 mb-8">
         <button mat-icon-button (click)="goBack()" class="text-blue-600">
           <mat-icon>arrow_back</mat-icon>
@@ -35,7 +39,7 @@ import { MatDividerModule } from '@angular/material/divider';
       </div>
 
       @if (flight) {
-        <!-- Card principale du vol -->
+        <!-- Card main flight -->
         <mat-card class="mb-8 overflow-hidden shadow-2xl">
           <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
             <div class="flex items-center justify-between">
@@ -47,14 +51,14 @@ import { MatDividerModule } from '@angular/material/divider';
                 </div>
               </div>
               <div class="text-right">
-                <div class="text-3xl font-bold">{{ flight.price }}€</div>
+                <div class="text-3xl font-bold">{{ flight.price | price }}</div>
                 <div class="text-blue-200">par personne</div>
               </div>
             </div>
           </div>
 
           <div class="p-6">
-            <!-- Itinéraire principal -->
+            <!-- Main itinerary -->
             <div class="flex items-center justify-between mb-8">
               <div class="text-center flex-1">
                 <div class="text-3xl font-bold text-blue-800 mb-1">
@@ -73,13 +77,9 @@ import { MatDividerModule } from '@angular/material/divider';
                     <div class="text-sm font-semibold text-gray-600 mt-1">
                       {{ flight.duration }}
                     </div>
-                    @if (flight.stops === 0) {
-                      <div class="text-xs text-green-600 font-semibold">Vol direct</div>
-                    } @else {
-                      <div class="text-xs text-orange-600 font-semibold">
-                        {{ flight.stops }} escale(s)
-                      </div>
-                    }
+                    <div class="text-xs text-green-600 font-semibold">
+                      {{ flight.stops | flightStops }}
+                    </div>
                   </div>
                   <div class="h-px bg-gray-300 flex-1"></div>
                 </div>
@@ -95,7 +95,7 @@ import { MatDividerModule } from '@angular/material/divider';
 
             <mat-divider class="mb-6"></mat-divider>
 
-            <!-- Informations détaillées -->
+            <!-- Detailed information -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div class="space-y-4">
                 <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
@@ -124,13 +124,13 @@ import { MatDividerModule } from '@angular/material/divider';
 
               <div class="space-y-4">
                 <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <mat-icon class="text-green-600">euro</mat-icon>
+                  <mat-icon class="text-blue-600">euro</mat-icon>
                   Tarification
                 </h3>
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-gray-600">Prix de base :</span>
-                    <span class="font-semibold">{{ flight.price }}€</span>
+                    <span class="font-semibold">{{ flight.price | price }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">Taxes et frais :</span>
@@ -143,13 +143,13 @@ import { MatDividerModule } from '@angular/material/divider';
                   <mat-divider></mat-divider>
                   <div class="flex justify-between text-lg">
                     <span class="font-bold">Total par personne :</span>
-                    <span class="font-bold text-blue-600">{{ flight.price }}€</span>
+                    <span class="font-bold text-blue-600">{{ flight.price | price }}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Avantages et services -->
+            <!-- Benefits and services -->
             <div class="bg-gray-50 rounded-lg p-6 mb-8">
               <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <mat-icon class="text-blue-600">star</mat-icon>
@@ -175,7 +175,7 @@ import { MatDividerModule } from '@angular/material/divider';
               </div>
             </div>
 
-            <!-- Actions -->
+            <!-- Booking actions -->
             <div class="flex flex-col md:flex-row gap-4 justify-center">
               <button
                 mat-raised-button
@@ -185,21 +185,13 @@ import { MatDividerModule } from '@angular/material/divider';
                 [routerLink]="['/booking', flight.id]"
               >
                 <mat-icon class="mr-2">flight</mat-icon>
-                Réserver ce vol - {{ flight.price }}€
+                Réserver ce vol - {{ flight.price | price }}
               </button>
-              <!-- <button mat-stroked-button color="primary" size="large" class="px-8 py-3">
-                  <mat-icon class="mr-2">favorite_border</mat-icon>
-                  Ajouter aux favoris
-                </button> -->
-              <!-- <button mat-stroked-button size="large" class="px-8 py-3">
-                  <mat-icon class="mr-2">share</mat-icon>
-                  Partager
-                </button> -->
             </div>
           </div>
         </mat-card>
 
-        <!-- Avis et recommandations -->
+        <!-- Advice and recommendations -->
         <mat-card class="p-6 shadow-lg">
           <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <mat-icon class="text-yellow-600">star_rate</mat-icon>
@@ -249,7 +241,6 @@ export class FlightDetailsComponent implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
   private readonly flightService = inject(FlightService);
-  private readonly router = inject(Router);
 
   private readonly location = inject(Location);
 

@@ -28,7 +28,7 @@ import { UserService } from '../services/user';
           </div>
         </div>
 
-        <!-- Account Form -->
+        <!-- Account form -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100" *ngIf="user()">
           <div class="p-8">
             <form #userForm="ngForm" (ngSubmit)="onSave()">
@@ -37,7 +37,6 @@ import { UserService } from '../services/user';
               </h2>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Name Field -->
                 <div class="space-y-2">
                   <label for="name" class="block text-sm font-semibold text-gray-700">
                     Nom complet *
@@ -54,7 +53,6 @@ import { UserService } from '../services/user';
                   />
                 </div>
 
-                <!-- Phone Field -->
                 <div class="space-y-2">
                   <label for="phone" class="block text-sm font-semibold text-gray-700">
                     Numéro de téléphone
@@ -70,7 +68,6 @@ import { UserService } from '../services/user';
                   />
                 </div>
 
-                <!-- Email Display -->
                 <div class="space-y-2">
                   <label for="email" class="block text-sm font-semibold text-gray-700">Email</label>
                   <input
@@ -83,7 +80,6 @@ import { UserService } from '../services/user';
                   <p class="text-xs text-gray-500">L'email ne peut pas être modifié</p>
                 </div>
 
-                <!-- Role Display -->
                 <div class="space-y-2">
                   <div class="block text-sm font-semibold text-gray-700">Statut du compte</div>
                   <div class="pt-3">
@@ -101,14 +97,14 @@ import { UserService } from '../services/user';
                   </div>
                 </div>
 
-                <!-- Account Creation Date -->
+                <!-- Account creation date -->
                 <div class="space-y-2 md:col-span-2">
                   <div class="block text-sm font-semibold text-gray-700">Membre depuis</div>
                   <p class="text-gray-600 text-lg">{{ formatDate(user()?.createdAt) }}</p>
                 </div>
               </div>
 
-              <!-- Action Buttons -->
+              <!-- Action buttons -->
               <div class="flex flex-col sm:flex-row gap-4 mt-10 pt-8 border-t border-gray-200">
                 <button
                   type="submit"
@@ -192,6 +188,7 @@ export class AccountComponent implements OnInit {
     });
   }
 
+  // GET
   getInitials(): string {
     const user = this.user();
     if (!user?.name) return '?';
@@ -238,7 +235,6 @@ export class AccountComponent implements OnInit {
       this.userService.deleteMyAccount().subscribe({
         next: () => {
           alert("Compte supprimé avec succès. Vous allez être redirigé vers l'accueil.");
-          // Redirection vers la page d'accueil après suppression
           this.router.navigate(['/']);
         },
         error: (err) => alert(err.message || 'Erreur lors de la suppression'),

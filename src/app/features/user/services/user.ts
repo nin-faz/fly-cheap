@@ -10,26 +10,28 @@ import { tap } from 'rxjs/operators';
 export class UserService {
   private readonly authService = inject(AuthService);
 
+  // GET
   readMyAccount(): Observable<User | null> {
     const user = this.authService.getCurrentUser();
     return of(user);
   }
 
+  // PUT
   updateMyAccount(updatedData: Partial<User>): Observable<User> {
     const user = this.authService.getCurrentUser();
     if (user) {
-      // Déléguer la mise à jour à AuthService
       return this.authService.updateUser(user.id, updatedData);
     }
     return throwError(() => new Error('Utilisateur non connecté'));
   }
 
+  // DELETE
   deleteMyAccount(): Observable<void> {
     const user = this.authService.getCurrentUser();
     if (user) {
       return this.authService.deleteUser(user.id).pipe(
         tap(() => {
-          // Logout automatique après suppression du compte
+          // Logout automatique after account deletion
           this.authService.logout();
         }),
       );

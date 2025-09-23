@@ -1,10 +1,13 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Flight } from '../models/flight';
+import { DurationPipe } from '../../../shared/pipes/duration.pipe';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FlightService {
+  private readonly durationParser = new DurationPipe();
+  // Mocked flights data
   private readonly flights = signal<Flight[]>([
     {
       id: '1',
@@ -83,20 +86,7 @@ export class FlightService {
     },
   ]);
 
-  // Signals computed pour des statistiques utiles
-  public readonly flightsCount = computed(() => this.flights().length);
-  public readonly directFlightsCount = computed(
-    () => this.flights().filter((f) => f.stops === 0).length,
-  );
-  public readonly averagePrice = computed(() => {
-    const flights = this.flights();
-    if (flights.length === 0) return 0;
-    return Math.round(flights.reduce((sum, f) => sum + f.price, 0) / flights.length);
-  });
-
-  // Signal en lecture seule pour l'extérieur
-  public readonly flights$ = this.flights.asReadonly();
-
+  // GET
   getFlights(): Flight[] {
     return [...this.flights()];
   }
@@ -146,24 +136,15 @@ export class FlightService {
         result.sort((a, b) => b.price - a.price);
         break;
       case 'duration':
-        result.sort((a, b) => this.parseDuration(a.duration) - this.parseDuration(b.duration));
+        result.sort(
+          (a, b) =>
+            this.durationParser.transform(a.duration) - this.durationParser.transform(b.duration),
+        );
         break;
       case 'departure':
         result.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
         break;
     }
     return result;
-  }
-
-  private parseDuration(duration: string): number {
-    const regex = /(\d+)h\s*(\d+)?m?/;
-
-    const match = regex.exec(duration);
-    if (match) {
-      const hours = parseInt(match[1]) || 0;
-      const minutes = parseInt(match[2]) || 0;
-      return hours * 60 + minutes;
-    }
-    return 0;
   }
 }

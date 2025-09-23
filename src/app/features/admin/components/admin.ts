@@ -11,6 +11,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { forkJoin } from 'rxjs';
 import { BookingService } from '../../booking/services/booking';
 import { StatusHighlightDirective } from '../../../shared/directives/status-highlight.directive';
+import { PricePipe } from '../../../shared/pipes/price.pipe';
+import { StatusPipe } from '../../../shared/pipes/status.pipe';
 
 @Component({
   selector: 'app-admin',
@@ -22,6 +24,8 @@ import { StatusHighlightDirective } from '../../../shared/directives/status-high
     MatIconModule,
     MatTabsModule,
     StatusHighlightDirective,
+    PricePipe,
+    StatusPipe,
   ],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 py-8">
@@ -71,7 +75,7 @@ import { StatusHighlightDirective } from '../../../shared/directives/status-high
                 <mat-icon class="text-yellow-600 text-3xl">euro</mat-icon>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">{{ getTotalRevenue() }}€</p>
+                <p class="text-2xl font-bold text-gray-900">{{ getTotalRevenue() | price }}</p>
                 <p class="text-sm text-gray-600">Chiffre d'affaires</p>
               </div>
             </div>
@@ -236,13 +240,14 @@ import { StatusHighlightDirective } from '../../../shared/directives/status-high
                             <td
                               class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600"
                             >
-                              {{ booking.totalPrice }}€
+                              {{ booking.totalPrice | price }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                               <span
                                 [appStatusHighlight]="booking.status"
                                 class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                               >
+                                {{ booking.status | status }}
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -306,8 +311,8 @@ export class AdminComponent implements OnInit {
     this.isLoading.set(true);
 
     /*
-    Opérateur qui lance plusieurs observables en parallèle et d’attendre que tous soient terminés
-    Je trouve c'est mieux de faire de cette manière que de charger chacun son tour (users et bookings)
+    Operator that launches several observables in parallel and waits for all of them to finish
+    I find it better to do it this way than to load them one at a time (users and bookings).
     */
     forkJoin({
       users: this.authService.getAllUsers(),

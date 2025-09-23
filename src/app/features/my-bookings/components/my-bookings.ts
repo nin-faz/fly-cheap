@@ -9,6 +9,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { StatusHighlightDirective } from '../../../shared/directives/status-highlight.directive';
+import { PricePipe } from '../../../shared/pipes/price.pipe';
+import { FlightStops } from '../../../shared/pipes/flightStops.pipe';
+import { StatusPipe } from '../../../shared/pipes/status.pipe';
 
 @Component({
   selector: 'app-my-bookings',
@@ -22,6 +25,9 @@ import { StatusHighlightDirective } from '../../../shared/directives/status-high
     MatChipsModule,
     MatDividerModule,
     StatusHighlightDirective,
+    PricePipe,
+    FlightStops,
+    StatusPipe,
   ],
   template: `
     <div class="max-w-5xl mx-auto px-6">
@@ -34,24 +40,12 @@ import { StatusHighlightDirective } from '../../../shared/directives/status-high
         </div>
       </div>
 
-      <!-- État vide -->
-      @if (bookings.length === 0) {
-        <mat-card class="text-center p-12 shadow-2xl">
-          <h2 class="text-xl font-semibold text-gray-600 mb-2">Aucune réservation trouvée</h2>
-          <p class="text-gray-500 mb-6">Vous n'avez pas encore réservé de vol.</p>
-          <button mat-raised-button color="primary" routerLink="/">
-            <mat-icon class="mr-2">search</mat-icon>
-            Rechercher des vols
-          </button>
-        </mat-card>
-      }
-
-      <!-- Liste des réservations -->
+      <!-- List of bookings -->
       @if (bookings.length > 0) {
         <div class="space-y-8">
           @for (booking of bookings; track booking.id) {
             <mat-card class="mb-8 overflow-hidden shadow-2xl">
-              <!-- Header de la réservation -->
+              <!-- Header booking -->
               <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-4">
@@ -65,15 +59,17 @@ import { StatusHighlightDirective } from '../../../shared/directives/status-high
                     <div
                       [appStatusHighlight]="booking.status"
                       class="inline-block px-3 py-1 rounded-full text-sm font-semibold mb-2"
-                    ></div>
+                    >
+                      {{ booking.status | status }}
+                    </div>
                     <div class="text-sm text-blue-200">Référence: #{{ booking.id }}</div>
                   </div>
                 </div>
               </div>
 
-              <!-- Contenu de la réservation -->
+              <!-- Content of the booking -->
               <div class="p-6">
-                <!-- Itinéraire principal -->
+                <!-- Main itinerary -->
                 <div class="flex items-center justify-between mb-8">
                   <div class="text-center flex-1">
                     <div class="text-3xl font-bold text-blue-800 mb-1">
@@ -94,7 +90,9 @@ import { StatusHighlightDirective } from '../../../shared/directives/status-high
                         <div class="text-sm font-semibold text-gray-600 mt-1">
                           {{ booking.flight.duration }}
                         </div>
-                        <div class="text-xs text-green-600 font-semibold">Vol direct</div>
+                        <div class="text-xs text-green-600 font-semibold">
+                          {{ booking.flight.stops | flightStops }}
+                        </div>
                       </div>
                       <div class="h-px bg-gray-300 flex-1"></div>
                     </div>
@@ -116,7 +114,7 @@ import { StatusHighlightDirective } from '../../../shared/directives/status-high
 
                 <mat-divider class="mb-6"></mat-divider>
 
-                <!-- Informations détaillées -->
+                <!-- Informations detailed -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   <!-- Informations passager -->
                   <mat-card class="p-6 shadow-lg">
@@ -140,7 +138,7 @@ import { StatusHighlightDirective } from '../../../shared/directives/status-high
                     </div>
                   </mat-card>
 
-                  <!-- Informations de réservation -->
+                  <!-- Informations booking -->
                   <mat-card class="p-6 shadow-lg">
                     <div class="flex items-center gap-3 mb-4">
                       <mat-icon class="text-blue-600 text-2xl">confirmation_number</mat-icon>
@@ -158,12 +156,14 @@ import { StatusHighlightDirective } from '../../../shared/directives/status-high
                         <div
                           [appStatusHighlight]="booking.status"
                           class="inline-block px-2 py-1 rounded text-xs font-semibold"
-                        ></div>
+                        >
+                          {{ booking.status | status }}
+                        </div>
                       </div>
                     </div>
                   </mat-card>
 
-                  <!-- Prix total -->
+                  <!-- Total price -->
                   <mat-card class="p-6 shadow-lg">
                     <div class="flex items-center gap-3 mb-4">
                       <mat-icon class="text-blue-600 text-2xl">euro</mat-icon>
@@ -172,19 +172,19 @@ import { StatusHighlightDirective } from '../../../shared/directives/status-high
                     <div class="space-y-2">
                       <div class="flex justify-between">
                         <span class="text-gray-600">Prix du vol:</span>
-                        <span class="font-semibold">{{ booking.flight.price }}€</span>
+                        <span class="font-semibold">{{ booking.flight.price | price }}</span>
                       </div>
                       <div class="flex justify-between">
                         <span class="text-gray-600">Total:</span>
-                        <span class="text-2xl font-bold text-blue-600"
-                          >{{ booking.totalPrice }}€</span
-                        >
+                        <span class="text-2xl font-bold text-blue-600">{{
+                          booking.totalPrice | price
+                        }}</span>
                       </div>
                     </div>
                   </mat-card>
                 </div>
 
-                <!-- Options supplémentaires -->
+                <!-- Options additional -->
                 @if (booking.extras.luggage || booking.extras.extraSeat || booking.extras.meal) {
                   <mat-card class="mt-6 p-6 shadow-lg">
                     <div class="flex items-center gap-3 mb-4">
@@ -269,6 +269,15 @@ import { StatusHighlightDirective } from '../../../shared/directives/status-high
             </mat-card>
           }
         </div>
+      } @else {
+        <mat-card class="text-center p-12 shadow-2xl">
+          <h2 class="text-xl font-semibold text-gray-600 mb-2">Aucune réservation trouvée</h2>
+          <p class="text-gray-500 mb-6">Vous n'avez pas encore réservé de vol.</p>
+          <button mat-raised-button color="primary" routerLink="/">
+            <mat-icon class="mr-2">search</mat-icon>
+            Rechercher des vols
+          </button>
+        </mat-card>
       }
     </div>
   `,
@@ -293,6 +302,7 @@ export class MyBookingsComponent implements OnInit {
     }
   }
 
+  // DELETE
   async deleteBooking(id: string) {
     if (await this.myBookingsService.deleteMyBooking(id)) {
       this.loadBookings();

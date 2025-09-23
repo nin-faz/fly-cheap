@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, effect } from '@angular/core';
+import { Injectable, signal, effect } from '@angular/core';
 import { Booking } from '../models/booking';
 import { Flight } from '../../flights/models/flight';
 import { User } from '../../user/models/user';
@@ -6,6 +6,7 @@ import { User } from '../../user/models/user';
   providedIn: 'root',
 })
 export class BookingService {
+  // Mocked bookings data
   private readonly bookings = signal<Booking[]>([
     {
       id: 'BK001',
@@ -87,7 +88,7 @@ export class BookingService {
     },
   ]);
 
-  // Signal public en lecture seule
+  // Expose read-only access to bookings for external components
   public readonly bookings$ = this.bookings.asReadonly();
 
   constructor() {
@@ -98,13 +99,6 @@ export class BookingService {
 
     this.loadBookingsFromStorage();
   }
-
-  public confirmedBookings = computed(() =>
-    this.bookings().filter((b) => b.status === 'confirmed'),
-  );
-
-  public bookingsByUser = (userId: number) =>
-    computed(() => this.bookings().filter((b) => b.user.id === userId));
 
   private async delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -117,23 +111,25 @@ export class BookingService {
     }
   }
 
-  // Pour avoir un meilleur ID ressemblant
+  // To have a better-looking ID
   private generateNewBookingId(bookings: Booking[]): string {
-    // On cherche le plus grand ID numérique existant
+    // Find the highest existing numeric ID
     const maxId = bookings.reduce((max, b) => {
       const idNum = parseInt(b.id.replace('BK', ''), 10);
       return idNum > max ? idNum : max;
     }, 0);
 
-    // On incrémente et on formate
+    // Increment and format
     return `BK${(maxId + 1).toString().padStart(3, '0')}`;
   }
 
+  // GET
   async getAllBookings(): Promise<Booking[]> {
     await this.delay(300);
     return this.bookings();
   }
 
+  // POST
   async addBooking(bookingData: {
     user: User;
     flight: Flight;
@@ -164,6 +160,7 @@ export class BookingService {
     return newBooking;
   }
 
+  // PUT
   async updateBooking(id: string, updates: Partial<Booking>) {
     await this.delay(300);
 
@@ -185,10 +182,12 @@ export class BookingService {
     return updatedBooking;
   }
 
+  // DELETE
   deleteBookingsByUserId(userId: number): void {
     this.bookings.update((list) => list.filter((b) => b.user.id !== userId));
   }
 
+  // DELETE
   async deleteBooking(id: string): Promise<boolean> {
     await this.delay(300);
 

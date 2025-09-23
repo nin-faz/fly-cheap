@@ -13,10 +13,12 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Flight } from '../../flights/models/flight';
+import { PricePipe } from '../../../shared/pipes/price.pipe';
 import { FlightService } from '../../flights/services/flight';
 import { BookingService } from '../services/booking';
 import { AuthService } from '../../auth/services/auth';
 import { Booking } from '../models/booking';
+import { FlightStops } from '../../../shared/pipes/flightStops.pipe';
 
 @Component({
   selector: 'app-flight-booking',
@@ -34,6 +36,8 @@ import { Booking } from '../models/booking';
     MatStepperModule,
     MatChipsModule,
     MatCheckboxModule,
+    PricePipe,
+    FlightStops,
   ],
   template: `
     <div class="max-w-5xl mx-auto px-6">
@@ -49,9 +53,9 @@ import { Booking } from '../models/booking';
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Formulaire principal -->
+        <!-- Form main -->
         <div class="lg:col-span-2 space-y-6">
-          <!-- Récapitulatif du vol -->
+          <!-- Recap flight -->
           <mat-card class="mb-8 overflow-hidden shadow-2xl">
             <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
               <div class="flex items-center justify-between">
@@ -63,14 +67,14 @@ import { Booking } from '../models/booking';
                   </div>
                 </div>
                 <div class="text-right">
-                  <div class="text-3xl font-bold">{{ flight?.price }}€</div>
+                  <div class="text-3xl font-bold">{{ flight?.price | price }}</div>
                   <div class="text-blue-200">par personne</div>
                 </div>
               </div>
             </div>
 
             <div class="p-6">
-              <!-- Itinéraire principal -->
+              <!-- Main itinerary -->
               <div class="flex items-center justify-between mb-8">
                 <div class="text-center flex-1">
                   <div class="text-3xl font-bold text-blue-800 mb-1">
@@ -89,13 +93,9 @@ import { Booking } from '../models/booking';
                       <div class="text-sm font-semibold text-gray-600 mt-1">
                         {{ flight?.duration }}
                       </div>
-                      @if (flight?.stops === 0) {
-                        <div class="text-xs text-green-600 font-semibold">Vol direct</div>
-                      } @else {
-                        <div class="text-xs text-orange-600 font-semibold">
-                          {{ flight?.stops }} escale(s)
-                        </div>
-                      }
+                      <div class="text-xs text-green-600 font-semibold">
+                        {{ flight?.stops | flightStops }}
+                      </div>
                     </div>
                     <div class="h-px bg-gray-300 flex-1"></div>
                   </div>
@@ -151,7 +151,7 @@ import { Booking } from '../models/booking';
             </div>
           </mat-card>
 
-          <!-- Options supplémentaires -->
+          <!-- Options additional  -->
           <mat-card class="mb-6 p-6 shadow-2xl">
             <div class="flex items-center gap-3 mb-6">
               <mat-icon class="text-blue-600 text-xl">add_circle</mat-icon>
@@ -204,7 +204,7 @@ import { Booking } from '../models/booking';
           </mat-card>
         </div>
 
-        <!-- Résumé et paiement -->
+        <!-- Recap and payment -->
         <div class="lg:col-span-1">
           <div class="sticky top-8">
             <mat-card class="p-6 shadow-2xl">
@@ -216,7 +216,7 @@ import { Booking } from '../models/booking';
               <div class="space-y-3 mb-6">
                 <div class="flex justify-between">
                   <span class="text-gray-600">Vol {{ flight?.flightNumber }}</span>
-                  <span class="font-semibold">{{ flight?.price }}€</span>
+                  <span class="font-semibold">{{ flight?.price | price }}</span>
                 </div>
 
                 @if (extras.luggage) {
@@ -244,7 +244,7 @@ import { Booking } from '../models/booking';
 
                 <div class="flex justify-between text-lg font-bold text-blue-600">
                   <span>Total</span>
-                  <span>{{ getTotalPrice() }}€</span>
+                  <span>{{ getTotalPrice() | price }}</span>
                 </div>
               </div>
 
@@ -267,7 +267,7 @@ import { Booking } from '../models/booking';
                 [disabled]="!isFormValid()"
               >
                 <mat-icon class="mr-2">lock</mat-icon>
-                Confirmer et payer {{ getTotalPrice() }}€
+                Confirmer et payer {{ getTotalPrice() | price }}
               </button>
 
               <div class="flex items-center justify-center gap-4 mt-4 text-gray-500">
@@ -283,8 +283,8 @@ import { Booking } from '../models/booking';
 })
 export class BookingComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly flightService = inject(FlightService);
   private readonly router = inject(Router);
+  private readonly flightService = inject(FlightService);
   private readonly bookingService = inject(BookingService);
   private readonly authService = inject(AuthService);
 

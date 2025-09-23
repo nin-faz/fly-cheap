@@ -16,17 +16,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
-// Validateur personnalisé pour la confirmation de mot de passe
 function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password');
   const confirmPassword = control.get('confirmPassword');
 
   if (password && confirmPassword && password.value !== confirmPassword.value) {
-    // On ajoute l'erreur directement sur le champ confirmPassword
     confirmPassword.setErrors({ passwordMismatch: true });
     return { passwordMismatch: true };
   } else if (confirmPassword?.hasError('passwordMismatch')) {
-    // On supprime l'erreur si les mots de passe correspondent maintenant
     const errors = { ...confirmPassword.errors };
     delete errors['passwordMismatch'];
     confirmPassword.setErrors(Object.keys(errors).length ? errors : null);
@@ -155,15 +152,12 @@ export class RegisterComponent {
       this.error.set('');
 
       const { confirmPassword, ...userData } = this.registerForm.value;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const _ = confirmPassword;
 
       this.authService.register(userData).subscribe({
         next: (newUser) => {
-          // Connexion automatique après inscription
+          // Auto-login user after successful registration
           this.authService.setCurrentUser(newUser);
           this.loading.set(false);
-          // Rediriger vers la page d'accueil maintenant connecté
           this.router.navigate(['/']);
         },
         error: (err) => {
