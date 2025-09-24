@@ -10,6 +10,8 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { ButtonLoadingService } from '../../../../core/services/button-loading.service';
+import { ButtonLoadingComponent } from '../../../../shared/components/button-loading/button-loading';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -37,6 +39,7 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    ButtonLoadingComponent,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -54,7 +57,7 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
             >Créer ton compte pour voyager moins cher !</span
           >
         </div>
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <form [formGroup]="registerForm" class="space-y-6">
           <mat-form-field appearance="fill" class="w-full">
             <mat-label>Nom complet</mat-label>
             <input matInput type="text" formControlName="name" />
@@ -104,16 +107,14 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
               <mat-error>{{ getFieldError('confirmPassword') }}</mat-error>
             }
           </mat-form-field>
-          <button mat-raised-button color="primary" class="w-full" [disabled]="loading()">
-            @if (loading()) {
-              <span
-                class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
-              ></span>
-              Création en cours...
-            } @else {
-              Créer le compte
-            }
-          </button>
+          <app-button-loading
+            [loading$]="buttonLoadingService.loading$"
+            normalText="Créer le compte"
+            loadingText="Création en cours..."
+            [disabled]="!registerForm.valid"
+            (buttonClick)="onSubmit()"
+          >
+          </app-button-loading>
           @if (error()) {
             <p class="text-sm text-center text-red-700">{{ error() }}</p>
           }
@@ -125,12 +126,12 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
 export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  protected readonly buttonLoadingService = inject(ButtonLoadingService);
   private readonly router = inject(Router);
 
   showPassword = false;
   showConfirmPassword = false;
   registerForm: FormGroup;
-  loading = signal(false);
   error = signal<string>('');
 
   constructor() {
@@ -148,20 +149,19 @@ export class RegisterComponent {
 
   onSubmit() {
     if (this.registerForm.valid) {
-      this.loading.set(true);
       this.error.set('');
 
       const { confirmPassword, ...userData } = this.registerForm.value;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = confirmPassword;
 
       this.authService.register(userData).subscribe({
         next: (newUser) => {
           // Auto-login user after successful registration
           this.authService.setCurrentUser(newUser);
-          this.loading.set(false);
           this.router.navigate(['/']);
         },
         error: (err) => {
-          this.loading.set(false);
           this.error.set(err.message || 'Erreur lors de la création du compte');
         },
       });

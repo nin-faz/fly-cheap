@@ -17,6 +17,8 @@ import { PricePipe } from '../../../shared/pipes/price.pipe';
 import { FlightService } from '../../flights/services/flight';
 import { BookingService } from '../services/booking';
 import { AuthService } from '../../auth/services/auth';
+import { ButtonLoadingService } from '../../../core/services/button-loading.service';
+import { ButtonLoadingComponent } from '../../../shared/components/button-loading/button-loading';
 import { Booking } from '../models/booking';
 import { FlightStops } from '../../../shared/pipes/flightStops.pipe';
 
@@ -36,6 +38,7 @@ import { FlightStops } from '../../../shared/pipes/flightStops.pipe';
     MatStepperModule,
     MatChipsModule,
     MatCheckboxModule,
+    ButtonLoadingComponent,
     PricePipe,
     FlightStops,
   ],
@@ -258,17 +261,15 @@ import { FlightStops } from '../../../shared/pipes/flightStops.pipe';
                 </p>
               </div>
 
-              <button
-                mat-raised-button
-                color="primary"
-                size="large"
-                class="w-full px-8 py-3 text-lg"
-                (click)="confirmBooking()"
+              <app-button-loading
+                [loading$]="buttonLoadingService.loading$"
+                normalText="Confirmer et payer {{ getTotalPrice() | price }}"
+                loadingText="Traitement en cours..."
+                buttonClass="w-full px-8 py-3 text-lg"
                 [disabled]="!isFormValid()"
+                (buttonClick)="confirmBooking()"
               >
-                <mat-icon class="mr-2">lock</mat-icon>
-                Confirmer et payer {{ getTotalPrice() | price }}
-              </button>
+              </app-button-loading>
 
               <div class="flex items-center justify-center gap-4 mt-4 text-gray-500">
                 <mat-icon class="text-sm">security</mat-icon>
@@ -287,6 +288,7 @@ export class BookingComponent implements OnInit {
   private readonly flightService = inject(FlightService);
   private readonly bookingService = inject(BookingService);
   private readonly authService = inject(AuthService);
+  protected readonly buttonLoadingService = inject(ButtonLoadingService);
 
   private readonly location = inject(Location);
 
@@ -333,6 +335,8 @@ export class BookingComponent implements OnInit {
       const currentUser = this.authService.getCurrentUser();
 
       if (currentUser) {
+        this.buttonLoadingService.loadingOn();
+
         const newBookingData = {
           user: currentUser,
           flight: this.flight,
@@ -341,10 +345,14 @@ export class BookingComponent implements OnInit {
           totalPrice: this.getTotalPrice(),
         };
 
-        this.bookingService.addBooking(newBookingData);
+        // Simulate a processing delay (payment, validation, etc.)
+        setTimeout(() => {
+          this.bookingService.addBooking(newBookingData);
+          this.buttonLoadingService.loadingOff();
 
-        alert('Réservation confirmée !');
-        this.router.navigate(['/my-bookings']);
+          alert('Réservation confirmée !');
+          this.router.navigate(['/my-bookings']);
+        }, 2000);
       }
     }
   }

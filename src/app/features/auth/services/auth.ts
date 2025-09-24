@@ -1,8 +1,9 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { LoginRequest, RegisterRequest } from '../models/user';
 import { User } from '../../user/models/user';
 import { BookingService } from '../../booking/services/booking';
-import { Observable, of, throwError, delay } from 'rxjs';
+import { ButtonLoadingService } from '../../../core/services/button-loading.service';
+import { Observable, of, throwError, delay, tap, finalize } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ export class AuthService {
   public currentUser$ = this.currentUser.asReadonly();
 
   private readonly bookingService = new BookingService();
+  private readonly buttonLoadingService = inject(ButtonLoadingService);
 
   // Signal with computed property for admin check
   public isAdmin = computed(() => this.currentUser()?.role === 'admin');
@@ -57,8 +59,13 @@ export class AuthService {
     const password = this.passwords[credentials.email];
 
     if (user && password === credentials.password) {
+      this.buttonLoadingService.loadingOn();
       // Simulate network delay
-      return of(user).pipe(delay(500));
+      return of(user).pipe(
+        delay(500),
+        tap(() => this.setCurrentUser(user)),
+        finalize(() => this.buttonLoadingService.loadingOff()),
+      );
     } else {
       return throwError(() => new Error('Email ou mot de passe incorrect'));
     }
@@ -70,6 +77,8 @@ export class AuthService {
     if (existingUser) {
       return throwError(() => new Error('Cet email est déjà utilisé'));
     }
+
+    this.buttonLoadingService.loadingOn();
 
     const newUser: User = {
       id: this.users.length + 1,
@@ -86,7 +95,10 @@ export class AuthService {
 
     this.saveUsersToStorage();
 
-    return of(newUser).pipe(delay(500));
+    return of(newUser).pipe(
+      delay(500),
+      finalize(() => this.buttonLoadingService.loadingOff()),
+    );
   }
 
   // POST
