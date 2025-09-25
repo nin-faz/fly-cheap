@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MyBookingsService } from '../services/my-bookings';
 import { Booking } from '../../booking/models/booking';
+import { NotificationService } from '../../../shared/services/notification';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,7 +11,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { StatusHighlightDirective } from '../../../shared/directives/status-highlight.directive';
 import { PricePipe } from '../../../shared/pipes/price.pipe';
-import { FlightStops } from '../../../shared/pipes/flightStops.pipe';
+import { FlightStops } from '../../../shared/pipes/flight-stops.pipe';
 import { StatusPipe } from '../../../shared/pipes/status.pipe';
 
 @Component({
@@ -284,6 +285,7 @@ import { StatusPipe } from '../../../shared/pipes/status.pipe';
 })
 export class MyBookingsComponent implements OnInit {
   private readonly myBookingsService = inject(MyBookingsService);
+  private readonly notificationService = inject(NotificationService);
   bookings: Booking[] = [];
 
   ngOnInit(): void {
@@ -299,13 +301,25 @@ export class MyBookingsComponent implements OnInit {
   async cancelBooking(id: string) {
     if (await this.myBookingsService.cancelBooking(id)) {
       this.loadBookings();
+      this.notificationService.showSuccess('Réservation annulée avec succès');
+    } else {
+      this.notificationService.showError("Erreur lors de l'annulation de la réservation");
     }
   }
 
   // DELETE
   async deleteBooking(id: string) {
-    if (await this.myBookingsService.deleteMyBooking(id)) {
-      this.loadBookings();
+    if (
+      confirm(
+        'Êtes-vous sûr de vouloir supprimer définitivement cette réservation ? Cette action est irréversible.',
+      )
+    ) {
+      if (await this.myBookingsService.deleteMyBooking(id)) {
+        this.loadBookings();
+        this.notificationService.showSuccess('Réservation supprimée définitivement');
+      } else {
+        this.notificationService.showError('Erreur lors de la suppression de la réservation');
+      }
     }
   }
 }

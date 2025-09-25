@@ -1,10 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { ButtonLoadingService } from '../../../../core/services/button-loading.service';
 import { ButtonLoadingComponent } from '../../../../shared/components/button-loading/button-loading';
+import { NotificationService } from '../../../../shared/services/notification';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -71,9 +72,6 @@ import { MatIconModule } from '@angular/material/icon';
             (buttonClick)="onSubmit()"
           >
           </app-button-loading>
-          @if (error()) {
-            <p class="text-sm text-center text-red-700">{{ error() }}</p>
-          }
         </form>
       </mat-card>
     </div>
@@ -84,9 +82,9 @@ export class LoginComponent {
   private readonly authService = inject(AuthService);
   protected readonly buttonLoadingService = inject(ButtonLoadingService);
   private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
 
   loginForm: FormGroup;
-  error = signal<string>('');
   showPassword = false;
 
   constructor() {
@@ -98,15 +96,14 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      this.error.set('');
-
       this.authService.login(this.loginForm.value).subscribe({
         next: (user) => {
-          this.router.navigate(['/']);
           this.authService.setCurrentUser(user);
+          this.notificationService.showSuccess(`Bienvenue ${user.name} !`);
+          setTimeout(() => this.router.navigate(['/']), 1000);
         },
         error: (err) => {
-          this.error.set(err.message || 'Erreur de connexion');
+          this.notificationService.showError(err.message || 'Erreur de connexion');
         },
       });
     }

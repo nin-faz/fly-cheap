@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
 import { FlightService } from '../services/flight';
 import { Flight } from '../models/flight';
@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { PricePipe } from '../../../shared/pipes/price.pipe';
-import { FlightStops } from '../../../shared/pipes/flightStops.pipe';
+import { FlightStops } from '../../../shared/pipes/flight-stops.pipe';
 
 @Component({
   selector: 'app-flight-details',

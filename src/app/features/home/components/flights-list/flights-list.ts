@@ -11,7 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { Flight } from '../../../flights/models/flight';
 import { PricePipe } from '../../../../shared/pipes/price.pipe';
-import { FlightStops } from '../../../../shared/pipes/flightStops.pipe';
+import { FlightStops } from '../../../../shared/pipes/flight-stops.pipe';
 
 @Component({
   selector: 'app-flights-list',

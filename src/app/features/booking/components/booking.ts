@@ -18,9 +18,10 @@ import { FlightService } from '../../flights/services/flight';
 import { BookingService } from '../services/booking';
 import { AuthService } from '../../auth/services/auth';
 import { ButtonLoadingService } from '../../../core/services/button-loading.service';
+import { NotificationService } from '../../../shared/services/notification';
 import { ButtonLoadingComponent } from '../../../shared/components/button-loading/button-loading';
 import { Booking } from '../models/booking';
-import { FlightStops } from '../../../shared/pipes/flightStops.pipe';
+import { FlightStops } from '../../../shared/pipes/flight-stops.pipe';
 
 @Component({
   selector: 'app-flight-booking',
@@ -289,6 +290,7 @@ export class BookingComponent implements OnInit {
   private readonly bookingService = inject(BookingService);
   private readonly authService = inject(AuthService);
   protected readonly buttonLoadingService = inject(ButtonLoadingService);
+  private readonly notificationService = inject(NotificationService);
 
   private readonly location = inject(Location);
 
@@ -350,8 +352,8 @@ export class BookingComponent implements OnInit {
           this.bookingService.addBooking(newBookingData);
           this.buttonLoadingService.loadingOff();
 
-          alert('Réservation confirmée !');
-          this.router.navigate(['/my-bookings']);
+          this.notificationService.showSuccess('Réservation confirmée !');
+          setTimeout(() => this.router.navigate(['/my-bookings']), 1500);
         }, 2000);
       }
     }

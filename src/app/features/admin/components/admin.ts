@@ -13,6 +13,7 @@ import { BookingService } from '../../booking/services/booking';
 import { StatusHighlightDirective } from '../../../shared/directives/status-highlight.directive';
 import { PricePipe } from '../../../shared/pipes/price.pipe';
 import { StatusPipe } from '../../../shared/pipes/status.pipe';
+import { NotificationService } from '../../../shared/services/notification';
 
 @Component({
   selector: 'app-admin',
@@ -292,6 +293,7 @@ export class AdminComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
   private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
 
   selectedTabIndex = signal<number>(0);
   users = signal<User[]>([]);
@@ -335,11 +337,11 @@ export class AdminComponent implements OnInit {
       this.authService.deleteUser(userId).subscribe({
         next: () => {
           this.loadData();
-          alert('Utilisateur supprimé avec succès');
+          this.notificationService.showSuccess('Utilisateur supprimé avec succès');
         },
         error: (error) => {
           console.error('Erreur lors de la suppression:', error);
-          alert("Erreur lors de la suppression de l'utilisateur");
+          this.notificationService.showError("Erreur lors de la suppression de l'utilisateur");
         },
       });
     }
@@ -351,19 +353,21 @@ export class AdminComponent implements OnInit {
         const deleted = await this.bookingService.deleteBooking(bookingId);
         if (deleted) {
           this.loadData();
-          alert('Réservation supprimée avec succès');
+          this.notificationService.showSuccess('Réservation supprimée avec succès');
         } else {
-          alert('Réservation introuvable');
+          this.notificationService.showWarning('Réservation introuvable');
         }
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
-        alert('Erreur lors de la suppression de la réservation');
+        this.notificationService.showError('Erreur lors de la suppression de la réservation');
       }
     }
   }
 
   viewBooking(booking: Booking) {
-    alert('Détails de la réservation:\n' + JSON.stringify(booking, null, 2));
+    this.notificationService.showInfo(
+      `Détails de la réservation: ${booking.passenger.name} ${booking.passenger.surname} - Vol ${booking.flight.flightNumber}`,
+    );
   }
 
   getUserInitials(user: User): string {

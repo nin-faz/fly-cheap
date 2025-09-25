@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { ButtonLoadingService } from '../../../../core/services/button-loading.service';
 import { ButtonLoadingComponent } from '../../../../shared/components/button-loading/button-loading';
+import { NotificationService } from '../../../../shared/services/notification';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -115,9 +116,6 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
             (buttonClick)="onSubmit()"
           >
           </app-button-loading>
-          @if (error()) {
-            <p class="text-sm text-center text-red-700">{{ error() }}</p>
-          }
         </form>
       </mat-card>
     </div>
@@ -128,11 +126,11 @@ export class RegisterComponent {
   private readonly authService = inject(AuthService);
   protected readonly buttonLoadingService = inject(ButtonLoadingService);
   private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
 
   showPassword = false;
   showConfirmPassword = false;
   registerForm: FormGroup;
-  error = signal<string>('');
 
   constructor() {
     this.registerForm = this.fb.group(
@@ -149,8 +147,6 @@ export class RegisterComponent {
 
   onSubmit() {
     if (this.registerForm.valid) {
-      this.error.set('');
-
       const { confirmPassword, ...userData } = this.registerForm.value;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const _ = confirmPassword;
@@ -159,10 +155,13 @@ export class RegisterComponent {
         next: (newUser) => {
           // Auto-login user after successful registration
           this.authService.setCurrentUser(newUser);
-          this.router.navigate(['/']);
+          this.notificationService.showSuccess(
+            `Compte créé avec succès ! Bienvenue ${newUser.name} !`,
+          );
+          setTimeout(() => this.router.navigate(['/']), 1500);
         },
         error: (err) => {
-          this.error.set(err.message || 'Erreur lors de la création du compte');
+          this.notificationService.showError(err.message || 'Erreur lors de la création du compte');
         },
       });
     }
