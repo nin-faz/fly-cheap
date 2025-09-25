@@ -1,8 +1,9 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { LoginRequest, RegisterRequest } from '../models/user';
 import { User } from '../../user/models/user';
 import { BookingService } from '../../booking/services/booking';
-import { Observable, of, throwError, delay } from 'rxjs';
+import { ButtonLoadingService } from '../../../core/services/button-loading.service';
+import { Observable, of, throwError, delay, tap, finalize } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -12,11 +13,12 @@ export class AuthService {
   public currentUser$ = this.currentUser.asReadonly();
 
   private readonly bookingService = new BookingService();
+  private readonly buttonLoadingService = inject(ButtonLoadingService);
 
-  // Signal avec validation
+  // Signal with computed property for admin check
   public isAdmin = computed(() => this.currentUser()?.role === 'admin');
 
-  // Mock data - utilisateurs de test
+  // Mocked user data
   private users: User[] = [
     {
       id: 1,
@@ -36,7 +38,7 @@ export class AuthService {
     },
   ];
 
-  // Mock data - mots de passe (en réalité, ils seraient hashés)
+  // Mock data - passwords (in reality, they would be hashed)
   private passwords: Record<string, string> = {
     'admin@example.com': 'admin123',
     'user@example.com': 'user123',
@@ -45,35 +47,39 @@ export class AuthService {
   constructor() {
     this.loadUsersFromStorage();
 
-    // Vérifier s'il y a un utilisateur en session
+    // Check if there is a user in session
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
       this.currentUser.set(JSON.parse(savedUser));
     }
   }
 
-  // POST - Connexion
   login(credentials: LoginRequest): Observable<User> {
     const user = this.users.find((u) => u.email === credentials.email);
     const password = this.passwords[credentials.email];
 
     if (user && password === credentials.password) {
-      // Simuler un délai réseau
-      return of(user).pipe(delay(500));
+      this.buttonLoadingService.loadingOn();
+      // Simulate network delay
+      return of(user).pipe(
+        delay(500),
+        tap(() => this.setCurrentUser(user)),
+        finalize(() => this.buttonLoadingService.loadingOff()),
+      );
     } else {
       return throwError(() => new Error('Email ou mot de passe incorrect'));
     }
   }
 
-  // POST - Inscription
   register(userData: RegisterRequest): Observable<User> {
-    // Vérifier si l'email existe déjà
+    // Check if email already exists
     const existingUser = this.users.find((u) => u.email === userData.email);
     if (existingUser) {
       return throwError(() => new Error('Cet email est déjà utilisé'));
     }
 
-    // Créer un nouvel utilisateur
+    this.buttonLoadingService.loadingOn();
+
     const newUser: User = {
       id: this.users.length + 1,
       name: userData.name,
@@ -83,33 +89,35 @@ export class AuthService {
       createdAt: new Date(),
     };
 
-    // Ajouter aux mock data
+    // Add to mock data
     this.users.push(newUser);
     this.passwords[userData.email] = userData.password;
 
     this.saveUsersToStorage();
 
-    // Simuler un délai réseau
-    return of(newUser).pipe(delay(500));
+    return of(newUser).pipe(
+      delay(500),
+      finalize(() => this.buttonLoadingService.loadingOff()),
+    );
   }
 
-  // POST - Déconnexion
+  // POST
   logout(): void {
     this.currentUser.set(null);
     localStorage.removeItem('currentUser');
   }
 
-  // GET - Récupérer l'utilisateur actuel
+  // GET
   getCurrentUser(): User | null {
     return this.currentUser();
   }
 
-  // GET - Récupérer tous les utilisateurs (admin seulement)
+  // GET - Recup all users (admin only)
   getAllUsers(): Observable<User[]> {
     return of(this.users).pipe(delay(300));
   }
 
-  // PUT - Mettre à jour un utilisateur
+  // PUT
   updateUser(userId: number, updatedData: Partial<User>): Observable<User> {
     const user = this.users.find((u) => u.id === userId);
     if (user) {
@@ -120,6 +128,7 @@ export class AuthService {
     return throwError(() => new Error('Utilisateur non trouvé'));
   }
 
+  // DELETE
   deleteUser(userId: number): Observable<void> {
     const index = this.users.findIndex((u) => u.id === userId);
     if (index !== -1) {
@@ -128,7 +137,7 @@ export class AuthService {
       if (deletedUser && deletedUser.email) {
         delete this.passwords[deletedUser.email];
       }
-      // Supprimer toutes les réservations liées à cet utilisateur
+      // Delete all bookings related to this user
       this.bookingService.deleteBookingsByUserId(userId);
       this.saveUsersToStorage();
       return of(void 0).pipe(delay(300));
@@ -136,12 +145,13 @@ export class AuthService {
     return throwError(() => new Error('Utilisateur non trouvé'));
   }
 
+  // GET
   getToken(): string | null {
     const user = this.currentUser();
     return user ? `mock-token-${user.id}` : null;
   }
 
-  // Méthode pour définir l'utilisateur connecté (utilisée après login)
+  // SET
   setCurrentUser(user: User): void {
     this.currentUser.set(user);
     localStorage.setItem('currentUser', JSON.stringify(user));
@@ -160,13 +170,5 @@ export class AuthService {
       this.users = JSON.parse(savedUsers);
       this.passwords = JSON.parse(savedPasswords);
     }
-  }
-
-  clearAllUserData(): void {
-    localStorage.removeItem('users');
-    localStorage.removeItem('usersPassword');
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('authToken');
-    this.loadUsersFromStorage();
   }
 }

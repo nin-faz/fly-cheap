@@ -1,14 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, effect } from '@angular/core';
 import { Booking } from '../models/booking';
-import { delay, Observable, of, throwError } from 'rxjs';
-
+import { Flight } from '../../flights/models/flight';
+import { User } from '../../user/models/user';
 @Injectable({
   providedIn: 'root',
 })
 export class BookingService {
-  private bookings: Booking[] = [];
-
-  private readonly mockBookings: Booking[] = [
+  // Mocked bookings data
+  private readonly bookings = signal<Booking[]>([
     {
       id: 'BK001',
       user: {
@@ -87,81 +86,119 @@ export class BookingService {
       createdAt: new Date('2025-09-18T09:15:00'),
       status: 'confirmed',
     },
-  ];
+  ]);
+
+  // Expose read-only access to bookings for external components
+  public readonly bookings$ = this.bookings.asReadonly();
 
   constructor() {
+    effect(() => {
+      const bookings = this.bookings();
+      localStorage.setItem('bookings', JSON.stringify(bookings));
+    });
+
     this.loadBookingsFromStorage();
   }
 
-  private saveBookings(bookings: Booking[]): void {
-    localStorage.setItem('bookings', JSON.stringify(bookings));
+  private async delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private loadBookingsFromStorage(): void {
     const savedBookings = localStorage.getItem('bookings');
-    if (savedBookings && savedBookings !== '[]') {
-      this.bookings = JSON.parse(savedBookings);
-    } else {
-      this.bookings = this.mockBookings;
-      this.saveBookings(this.bookings);
+    if (savedBookings) {
+      this.bookings.set(JSON.parse(savedBookings));
     }
   }
 
-  getBookings(): Booking[] {
-    return this.bookings;
-  }
-
-  getAllBookings(): Observable<Booking[]> {
-    return of(this.bookings).pipe(delay(300));
-  }
-
-  addBooking(booking: Omit<Booking, 'id'>) {
-    const newId = this.generateNewBookingId(this.bookings);
-
-    const newBooking: Booking = {
-      id: newId,
-      ...booking,
-    };
-
-    this.bookings.push(newBooking);
-    this.saveBookings(this.bookings);
-  }
-
-  updateBooking(id: string, updatedBooking: Booking): boolean {
-    const index = this.bookings.findIndex((b) => b.id === id);
-    if (index !== -1) {
-      this.bookings[index] = updatedBooking;
-      this.saveBookings(this.bookings);
-      return true;
-    }
-    return false;
-  }
-
-  deleteBookingsByUserId(userId: number): void {
-    this.bookings = this.bookings.filter((b) => b.user.id !== userId);
-    this.saveBookings(this.bookings);
-  }
-
-  deleteBooking(id: string): Observable<void> {
-    const index = this.bookings.findIndex((b) => b.id === id);
-    if (index !== -1) {
-      this.bookings.splice(index, 1);
-      this.saveBookings(this.bookings);
-      return of(void 0).pipe(delay(300));
-    }
-    return throwError(() => new Error('Réservation non trouvée'));
-  }
-
-  // Pour avoir un meilleur ID ressemblant
+  // To have a better-looking ID
   private generateNewBookingId(bookings: Booking[]): string {
-    // On cherche le plus grand ID numérique existant
+    // Find the highest existing numeric ID
     const maxId = bookings.reduce((max, b) => {
       const idNum = parseInt(b.id.replace('BK', ''), 10);
       return idNum > max ? idNum : max;
     }, 0);
 
-    // On incrémente et on formate
-    const newNumericId = maxId + 1;
-    return `BK${newNumericId.toString().padStart(3, '0')}`;
+    // Increment and format
+    return `BK${(maxId + 1).toString().padStart(3, '0')}`;
+  }
+
+  // GET
+  async getAllBookings(): Promise<Booking[]> {
+    await this.delay(300);
+    return this.bookings();
+  }
+
+  // POST
+  async addBooking(bookingData: {
+    user: User;
+    flight: Flight;
+    passenger: Booking['passenger'];
+    extras: Booking['extras'];
+    totalPrice: number;
+  }): Promise<Booking> {
+    await this.delay(300);
+
+    const extras = {
+      luggage: bookingData.extras?.luggage ?? false,
+      extraSeat: bookingData.extras?.extraSeat ?? false,
+      meal: bookingData.extras?.meal ?? false,
+    };
+
+    const newBooking: Booking = {
+      id: this.generateNewBookingId(this.bookings()),
+      user: bookingData.user,
+      flight: bookingData.flight,
+      passenger: bookingData.passenger,
+      extras,
+      totalPrice: bookingData.totalPrice,
+      createdAt: new Date(),
+      status: 'confirmed',
+    };
+
+    this.bookings.update((list) => [...list, newBooking]);
+    return newBooking;
+  }
+
+  // PUT
+  async updateBooking(id: string, updates: Partial<Booking>) {
+    await this.delay(300);
+
+    let updatedBooking: Booking | undefined;
+
+    this.bookings.update((bookings) =>
+      bookings.map((booking) => {
+        if (booking.id === id) {
+          updatedBooking = {
+            ...booking,
+            ...updates,
+          };
+          return updatedBooking;
+        }
+        return booking;
+      }),
+    );
+
+    return updatedBooking;
+  }
+
+  // DELETE
+  deleteBookingsByUserId(userId: number): void {
+    this.bookings.update((list) => list.filter((b) => b.user.id !== userId));
+  }
+
+  // DELETE
+  async deleteBooking(id: string): Promise<boolean> {
+    await this.delay(300);
+
+    let deletedBooking = false;
+    this.bookings.update((bookings) => {
+      const initialLength = bookings.length;
+      const filtered = bookings.filter((booking) => booking.id !== id);
+      deletedBooking = filtered.length < initialLength;
+      return filtered;
+    });
+
+    return deletedBooking;
   }
 }

@@ -10,11 +10,24 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { forkJoin } from 'rxjs';
 import { BookingService } from '../../booking/services/booking';
+import { StatusHighlightDirective } from '../../../shared/directives/status-highlight.directive';
+import { PricePipe } from '../../../shared/pipes/price.pipe';
+import { StatusPipe } from '../../../shared/pipes/status.pipe';
+import { NotificationService } from '../../../shared/services/notification';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatTabsModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTabsModule,
+    StatusHighlightDirective,
+    PricePipe,
+    StatusPipe,
+  ],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 py-8">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -63,7 +76,7 @@ import { BookingService } from '../../booking/services/booking';
                 <mat-icon class="text-yellow-600 text-3xl">euro</mat-icon>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">{{ getTotalRevenue() }}€</p>
+                <p class="text-2xl font-bold text-gray-900">{{ getTotalRevenue() | price }}</p>
                 <p class="text-sm text-gray-600">Chiffre d'affaires</p>
               </div>
             </div>
@@ -228,19 +241,14 @@ import { BookingService } from '../../booking/services/booking';
                             <td
                               class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600"
                             >
-                              {{ booking.totalPrice }}€
+                              {{ booking.totalPrice | price }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                               <span
-                                [class.bg-yellow-100]="booking.status === 'pending'"
-                                [class.text-yellow-800]="booking.status === 'pending'"
-                                [class.bg-green-100]="booking.status === 'confirmed'"
-                                [class.text-green-800]="booking.status === 'confirmed'"
-                                [class.bg-red-100]="booking.status === 'cancelled'"
-                                [class.text-red-800]="booking.status === 'cancelled'"
+                                [appStatusHighlight]="booking.status"
                                 class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                               >
-                                {{ getStatusLabel(booking.status) }}
+                                {{ booking.status | status }}
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -285,6 +293,7 @@ export class AdminComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
   private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
 
   selectedTabIndex = signal<number>(0);
   users = signal<User[]>([]);
@@ -304,8 +313,8 @@ export class AdminComponent implements OnInit {
     this.isLoading.set(true);
 
     /*
-    Opérateur qui lance plusieurs observables en parallèle et d’attendre que tous soient terminés
-    Je trouve c'est mieux de faire de cette manière que de charger chacun son tour (users et bookings)
+    Operator that launches several observables in parallel and waits for all of them to finish
+    I find it better to do it this way than to load them one at a time (users and bookings).
     */
     forkJoin({
       users: this.authService.getAllUsers(),
@@ -328,34 +337,37 @@ export class AdminComponent implements OnInit {
       this.authService.deleteUser(userId).subscribe({
         next: () => {
           this.loadData();
-          alert('Utilisateur supprimé avec succès');
+          this.notificationService.showSuccess('Utilisateur supprimé avec succès');
         },
         error: (error) => {
           console.error('Erreur lors de la suppression:', error);
-          alert("Erreur lors de la suppression de l'utilisateur");
+          this.notificationService.showError("Erreur lors de la suppression de l'utilisateur");
         },
       });
     }
   }
 
-  deleteBooking(bookingId: string) {
+  async deleteBooking(bookingId: string) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?')) {
-      this.bookingService.deleteBooking(bookingId).subscribe({
-        next: () => {
+      try {
+        const deleted = await this.bookingService.deleteBooking(bookingId);
+        if (deleted) {
           this.loadData();
-          alert('Réservation supprimée avec succès');
-        },
-        error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
-          alert('Erreur lors de la suppression de la réservation');
-        },
-      });
+          this.notificationService.showSuccess('Réservation supprimée avec succès');
+        } else {
+          this.notificationService.showWarning('Réservation introuvable');
+        }
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+        this.notificationService.showError('Erreur lors de la suppression de la réservation');
+      }
     }
   }
 
   viewBooking(booking: Booking) {
-    console.log('Voir réservation:', booking);
-    alert('Détails de la réservation:\n' + JSON.stringify(booking, null, 2));
+    this.notificationService.showInfo(
+      `Détails de la réservation: ${booking.passenger.name} ${booking.passenger.surname} - Vol ${booking.flight.flightNumber}`,
+    );
   }
 
   getUserInitials(user: User): string {
@@ -378,18 +390,5 @@ export class AdminComponent implements OnInit {
       }
       return total;
     }, 0);
-  }
-
-  getStatusLabel(status: string): string {
-    switch (status) {
-      case 'pending':
-        return 'En attente';
-      case 'confirmed':
-        return 'Confirmé';
-      case 'cancelled':
-        return 'Annulé';
-      default:
-        return status;
-    }
   }
 }

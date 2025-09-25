@@ -1,8 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, computed, signal } from '@angular/core';
 import { Booking } from '../../booking/models/booking';
 import { AuthService } from '../../auth/services/auth';
 import { BookingService } from '../../booking/services/booking';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -11,33 +10,50 @@ export class MyBookingsService {
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
 
-  getMyBookings(): Booking[] {
+  // Signal to force reactivity when bookings change
+  private readonly refreshTrigger = signal(0);
+
+  // GET
+  async getMyBookings(): Promise<Booking[]> {
     const currentUser = this.authService.getCurrentUser();
-    const allBookings = this.bookingService.getBookings();
 
-    if (!currentUser) {
-      return [];
-    }
+    const allBookings = await this.bookingService.getAllBookings();
+    const myBookings = allBookings.filter((booking) => booking.user.id === currentUser?.id);
 
-    return allBookings.filter((booking) => booking.user.id === currentUser.id);
+    // Update the trigger for reactivity
+    this.refreshTrigger.update((n) => n + 1);
+
+    return myBookings;
   }
 
-  getBookingById(id: string): Booking | undefined {
-    return this.bookingService.getBookings().find((booking) => booking.id === id);
+  // GET
+  async getBookingById(id: string): Promise<Booking | undefined> {
+    const allBookings = await this.bookingService.getAllBookings();
+    return allBookings.find((booking: Booking) => booking.id === id);
   }
 
-  cancelBooking(id: string): boolean {
-    const booking = this.getBookingById(id);
+  async cancelBooking(id: string): Promise<boolean> {
+    const booking = await this.getBookingById(id);
     if (booking && booking.status === 'confirmed') {
-      // On met à jour le statut
       const updatedBooking = { ...booking, status: 'cancelled' as const };
-      // On demande au service master de faire la mise à jour
-      return this.bookingService.updateBooking(id, updatedBooking);
+      const result = await this.bookingService.updateBooking(id, updatedBooking);
+
+      // Update the trigger for reactivity
+      this.refreshTrigger.update((n) => n + 1);
+
+      // Convert result to boolean - true if booking was successfully updated
+      return Boolean(result);
     }
     return false;
   }
 
-  deleteMyBooking(id: string): Observable<void> {
-    return this.bookingService.deleteBooking(id);
+  // DELETE
+  async deleteMyBooking(id: string): Promise<boolean> {
+    const result = await this.bookingService.deleteBooking(id);
+
+    // Update the trigger for reactivity
+    this.refreshTrigger.update((n) => n + 1);
+
+    return result;
   }
 }

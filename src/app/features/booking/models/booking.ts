@@ -17,5 +17,5 @@ export interface Booking {
   };
   totalPrice: number;
   createdAt: Date;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: 'confirmed' | 'cancelled';
 }

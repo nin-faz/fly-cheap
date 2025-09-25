@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,7 @@ import { SearchBarComponent } from '../components/search-bar/search-bar';
 import { FlightsListComponent } from '../components/flights-list/flights-list';
 import { FlightService } from '../../flights/services/flight';
 import { Flight } from '../../flights/models/flight';
+import { PricePipe } from '../../../shared/pipes/price.pipe';
 
 @Component({
   selector: 'app-home',
@@ -25,9 +26,10 @@ import { Flight } from '../../flights/models/flight';
     RouterLink,
     SearchBarComponent,
     FlightsListComponent,
+    PricePipe,
   ],
   template: `
-    <!-- Hero Section -->
+    <!-- Hero section -->
     <section class="relative pb-16 bg-gradient-to-br from-blue-50 to-blue-200 flex items-center">
       <div class="container mx-auto px-6 text-center">
         <div class="max-w-4xl mx-auto">
@@ -35,10 +37,10 @@ import { Flight } from '../../flights/models/flight';
             Découvrez les vols les moins chers du monde entier
           </p>
 
-          <!-- Search Bar -->
+          <!-- Search bar -->
           <app-search-bar (searchFlights)="onSearchFlights($event)"></app-search-bar>
 
-          <!-- Filtres et tri -->
+          <!-- Filter and sort -->
           <div class="max-w-4xl mx-auto p-6">
             <div class="flex items-center justify-between mb-8">
               <div class="flex items-center gap-3">
@@ -49,7 +51,7 @@ import { Flight } from '../../flights/models/flight';
               <div class="flex items-center gap-4">
                 <div class="relative">
                   <select
-                    [ngModel]="sortBy"
+                    [ngModel]="sortBy()"
                     (ngModelChange)="onSortChange($event)"
                     class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-48"
                   >
@@ -66,7 +68,7 @@ import { Flight } from '../../flights/models/flight';
 
                 <div class="relative">
                   <select
-                    [ngModel]="filterBy"
+                    [ngModel]="filterBy()"
                     (ngModelChange)="onFilterChange($event)"
                     class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-48"
                   >
@@ -97,13 +99,13 @@ import { Flight } from '../../flights/models/flight';
             </div>
 
             <!-- Search Card -->
-            <app-flights-list [flights]="searchResults"></app-flights-list>
+            <app-flights-list [flights]="searchResults()"></app-flights-list>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- Features section -->
     <section class="py-16 bg-white">
       <div class="container mx-auto px-6">
         <h2 class="text-4xl font-bold text-center text-blue-800 mb-16">
@@ -139,7 +141,7 @@ import { Flight } from '../../flights/models/flight';
       </div>
     </section>
 
-    <!-- Popular Destinations -->
+    <!-- Popular destinations -->
     <section class="py-16 bg-gradient-to-r from-blue-50 to-blue-100">
       <div class="container mx-auto px-6">
         <h2 class="text-4xl font-bold text-center text-blue-800 mb-16">Destinations populaires</h2>
@@ -155,7 +157,9 @@ import { Flight } from '../../flights/models/flight';
             </div>
             <div class="p-6">
               <p class="text-gray-600 mb-4">La ville lumière vous attend</p>
-              <p class="text-2xl font-bold text-blue-600">À partir de 89€</p>
+              <p class="text-2xl font-bold text-blue-600">
+                À partir de {{ destinationPrices.paris | price }}
+              </p>
             </div>
           </mat-card>
           <mat-card class="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
@@ -169,7 +173,9 @@ import { Flight } from '../../flights/models/flight';
             </div>
             <div class="p-6">
               <p class="text-gray-600 mb-4">Découvrez la culture japonaise</p>
-              <p class="text-2xl font-bold text-blue-600">À partir de 450€</p>
+              <p class="text-2xl font-bold text-blue-600">
+                À partir de {{ destinationPrices.tokyo | price }}
+              </p>
             </div>
           </mat-card>
           <mat-card class="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
@@ -183,7 +189,9 @@ import { Flight } from '../../flights/models/flight';
             </div>
             <div class="p-6">
               <p class="text-gray-600 mb-4">La ville qui ne dort jamais</p>
-              <p class="text-2xl font-bold text-blue-600">À partir de 320€</p>
+              <p class="text-2xl font-bold text-blue-600">
+                À partir de {{ destinationPrices.newYork | price }}
+              </p>
             </div>
           </mat-card>
         </div>
@@ -215,21 +223,43 @@ import { Flight } from '../../flights/models/flight';
   `,
   styles: '',
 })
-export class HomeComponent implements OnInit {
-  searchResults: Flight[] = [];
-
+export class HomeComponent {
   private readonly flightService = inject(FlightService);
 
-  sortBy = 'price';
-  filterBy = 'all';
+  // Prices for popular destinations
+  readonly destinationPrices = {
+    paris: 89,
+    tokyo: 450,
+    newYork: 320,
+  };
 
-  ngOnInit() {
-    this.loadFlights();
-  }
+  // Signals for filters and sorting
+  readonly sortBy = signal<string>('price');
+  readonly filterBy = signal<string>('all');
+  readonly searchCriteria = signal<{
+    departure: string;
+    destination: string;
+    departureDate: string;
+    returnDate: string;
+  } | null>(null);
 
-  private loadFlights() {
-    this.searchResults = this.flightService.getFlights();
-  }
+  // Signal computed for filtered and sorted results
+  readonly searchResults = computed(() => {
+    const criteria = this.searchCriteria();
+    const filter = this.filterBy();
+    const sort = this.sortBy();
+
+    let flights: Flight[];
+    if (criteria) {
+      flights = this.flightService.searchFlights(criteria);
+    } else {
+      flights = this.flightService.getFlights();
+    }
+
+    const filtered = this.flightService.filterFlights(flights, filter);
+
+    return this.flightService.sortFlights(filtered, sort);
+  });
 
   onSearchFlights(searchData: {
     departure: string;
@@ -237,35 +267,20 @@ export class HomeComponent implements OnInit {
     departureDate: string;
     returnDate: string;
   }) {
-    this.searchResults = this.flightService.searchFlights(searchData);
-    this.applyFiltersAndSort();
+    this.searchCriteria.set(searchData);
   }
 
   onFilterChange(filter: string) {
-    this.filterBy = filter;
-    const filtered = this.flightService.filterFlights(
-      this.flightService.getFlights(),
-      this.filterBy,
-    );
-    this.searchResults = this.flightService.sortFlights(filtered, this.sortBy);
+    this.filterBy.set(filter);
   }
 
   onSortChange(sort: string) {
-    this.sortBy = sort;
-    this.searchResults = this.flightService.sortFlights(this.searchResults, this.sortBy);
+    this.sortBy.set(sort);
   }
 
   resetFiltersAndSort() {
-    this.sortBy = 'price';
-    this.filterBy = 'all';
-    this.loadFlights();
-  }
-
-  private applyFiltersAndSort() {
-    // Filtrer
-    const filtered = this.flightService.filterFlights(this.searchResults, this.filterBy);
-
-    // Trier
-    this.searchResults = this.flightService.sortFlights(filtered, this.sortBy);
+    this.sortBy.set('price');
+    this.filterBy.set('all');
+    this.searchCriteria.set(null);
   }
 }

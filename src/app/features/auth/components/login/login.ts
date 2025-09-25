@@ -1,8 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { ButtonLoadingService } from '../../../../core/services/button-loading.service';
+import { ButtonLoadingComponent } from '../../../../shared/components/button-loading/button-loading';
+import { NotificationService } from '../../../../shared/services/notification';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,6 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    ButtonLoadingComponent,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -32,7 +36,7 @@ import { MatIconModule } from '@angular/material/icon';
             >Connecte-toi pour profiter des meilleurs vols !</span
           >
         </div>
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <form [formGroup]="loginForm" class="space-y-6">
           <mat-form-field appearance="fill" class="w-full">
             <mat-label>Adresse email</mat-label>
             <input matInput type="email" formControlName="email" />
@@ -60,19 +64,14 @@ import { MatIconModule } from '@angular/material/icon';
               <mat-error>{{ getFieldError('password') }}</mat-error>
             }
           </mat-form-field>
-          <button mat-raised-button color="primary" class="w-full" [disabled]="loading()">
-            @if (loading()) {
-              <span
-                class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
-              ></span>
-              Connexion en cours...
-            } @else {
-              Se connecter
-            }
-          </button>
-          @if (error()) {
-            <p class="text-sm text-center text-red-700">{{ error() }}</p>
-          }
+          <app-button-loading
+            [loading$]="buttonLoadingService.loading$"
+            normalText="Se connecter"
+            loadingText="Connexion en cours..."
+            [disabled]="!loginForm.valid"
+            (buttonClick)="onSubmit()"
+          >
+          </app-button-loading>
         </form>
       </mat-card>
     </div>
@@ -81,11 +80,11 @@ import { MatIconModule } from '@angular/material/icon';
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  protected readonly buttonLoadingService = inject(ButtonLoadingService);
   private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
 
   loginForm: FormGroup;
-  loading = signal(false);
-  error = signal<string>('');
   showPassword = false;
 
   constructor() {
@@ -97,18 +96,14 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      this.loading.set(true);
-      this.error.set('');
-
       this.authService.login(this.loginForm.value).subscribe({
         next: (user) => {
-          this.loading.set(false);
-          this.router.navigate(['/']);
           this.authService.setCurrentUser(user);
+          this.notificationService.showSuccess(`Bienvenue ${user.name} !`);
+          setTimeout(() => this.router.navigate(['/']), 1000);
         },
         error: (err) => {
-          this.loading.set(false);
-          this.error.set(err.message || 'Erreur de connexion');
+          this.notificationService.showError(err.message || 'Erreur de connexion');
         },
       });
     }

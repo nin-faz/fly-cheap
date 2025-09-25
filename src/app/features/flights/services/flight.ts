@@ -1,11 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Flight } from '../models/flight';
+import { DurationPipe } from '../../../shared/pipes/duration.pipe';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FlightService {
-  private readonly flights: Flight[] = [
+  private readonly durationParser = new DurationPipe();
+  // Mocked flights data
+  private readonly flights = signal<Flight[]>([
     {
       id: '1',
       departure: 'Paris',
@@ -81,10 +84,11 @@ export class FlightService {
       flightNumber: 'A3 7890',
       stops: 0,
     },
-  ];
+  ]);
 
+  // GET
   getFlights(): Flight[] {
-    return [...this.flights];
+    return [...this.flights()];
   }
 
   searchFlights(criteria: {
@@ -93,14 +97,13 @@ export class FlightService {
     departureDate: string;
     returnDate: string;
   }): Flight[] {
-    return this.flights.filter(
+    return this.flights().filter(
       (f) =>
         f.departure.toLowerCase().includes(criteria.departure.toLowerCase()) &&
         f.destination.toLowerCase().includes(criteria.destination.toLowerCase()),
     );
   }
 
-  // FlightService
   filterFlights(flights: Flight[], filterBy: string): Flight[] {
     return flights.filter((f) => {
       switch (filterBy) {
@@ -133,24 +136,15 @@ export class FlightService {
         result.sort((a, b) => b.price - a.price);
         break;
       case 'duration':
-        result.sort((a, b) => this.parseDuration(a.duration) - this.parseDuration(b.duration));
+        result.sort(
+          (a, b) =>
+            this.durationParser.transform(a.duration) - this.durationParser.transform(b.duration),
+        );
         break;
       case 'departure':
         result.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
         break;
     }
     return result;
-  }
-
-  private parseDuration(duration: string): number {
-    const regex = /(\d+)h\s*(\d+)?m?/;
-
-    const match = regex.exec(duration);
-    if (match) {
-      const hours = parseInt(match[1]) || 0;
-      const minutes = parseInt(match[2]) || 0;
-      return hours * 60 + minutes;
-    }
-    return 0;
   }
 }
