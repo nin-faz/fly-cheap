@@ -5,6 +5,7 @@ import { HeaderComponent } from './shared/components/header/header';
 import { FooterComponent } from './shared/components/footer/footer';
 import { GlobalLoadingComponent } from './shared/components/global-loading/global-loading';
 import { NotificationsComponent } from './shared/components/notifications/notifications';
+import { PwaPromptComponent } from './shared/components/pwa-prompt/pwa-prompt';
 import { GlobalLoadingService } from './core/services/global-loading.service';
 
 @Component({
@@ -15,6 +16,7 @@ import { GlobalLoadingService } from './core/services/global-loading.service';
     FooterComponent,
     GlobalLoadingComponent,
     NotificationsComponent,
+    PwaPromptComponent,
     CommonModule,
     AsyncPipe,
   ],
@@ -29,11 +31,9 @@ import { GlobalLoadingService } from './core/services/global-loading.service';
       <app-footer></app-footer>
     }
 
-    <!-- Loading global (always present, but only shows if active) -->
     <app-global-loading></app-global-loading>
-
-    <!-- Notifications (always present, but only shows when there are notifications) -->
     <app-notifications></app-notifications>
+    <app-pwa-prompt></app-pwa-prompt>
   `,
   styles: [],
 })
