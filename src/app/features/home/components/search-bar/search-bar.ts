@@ -20,9 +20,11 @@ import { MatCardModule } from '@angular/material/card';
     MatIconModule,
   ],
   template: `
-    <mat-card class="p-6 shadow-xl rounded-2xl bg-white/90 backdrop-blur-sm">
-      <h2 class="text-xl font-bold text-blue-700 mb-4">Rechercher votre vol idéal</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+    <mat-card class="p-4 sm:p-6 shadow-xl rounded-2xl bg-white/90 backdrop-blur-sm mx-4 sm:mx-0">
+      <h2 class="text-lg sm:text-xl font-bold text-blue-700 mb-4 text-center sm:text-left">
+        Rechercher votre vol idéal
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <mat-form-field appearance="fill" class="w-full">
           <mat-label>Départ</mat-label>
           <input
@@ -71,12 +73,13 @@ import { MatCardModule } from '@angular/material/card';
       <button
         mat-raised-button
         color="primary"
-        class="w-full md:w-auto text-lg px-8 py-3"
+        class="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3"
         [disabled]="!isFormValid()"
         (click)="onSubmit($event)"
       >
-        <mat-icon class="mr-2">search</mat-icon>
-        Rechercher les vols
+        <mat-icon class="mr-2 text-sm sm:text-base">search</mat-icon>
+        <span class="hidden sm:inline">Rechercher les vols</span>
+        <span class="sm:hidden">Rechercher</span>
       </button>
     </mat-card>
   `,

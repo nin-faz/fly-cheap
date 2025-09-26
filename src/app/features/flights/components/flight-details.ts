@@ -26,77 +26,95 @@ import { FlightStops } from '../../../shared/pipes/flight-stops.pipe';
     FlightStops,
   ],
   template: `
-    <div class="max-w-4xl mx-auto px-6">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
       <!-- Header with back button -->
-      <div class="flex items-center gap-4 mb-8">
-        <button mat-icon-button (click)="goBack()" class="text-blue-600">
-          <mat-icon>arrow_back</mat-icon>
+      <div class="flex items-start gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <button mat-icon-button (click)="goBack()" style="padding: 0">
+          <mat-icon class="text-blue-600 p-0">arrow_back</mat-icon>
         </button>
         <div>
-          <h1 class="text-3xl font-bold text-blue-800">Détails du vol</h1>
-          <p class="text-gray-600">Toutes les informations sur votre vol</p>
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-800">Détails du vol</h1>
+          <p class="text-gray-600 text-sm sm:text-base">Toutes les informations sur votre vol</p>
         </div>
       </div>
 
       @if (flight) {
         <!-- Card main flight -->
-        <mat-card class="mb-8 overflow-hidden shadow-2xl">
-          <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-4">
-                <mat-icon class="text-2xl mb-6">flight</mat-icon>
+        <mat-card class="mb-6 sm:mb-8 overflow-hidden shadow-2xl">
+          <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div class="flex items-center gap-3 sm:gap-4">
+                <mat-icon class="text-xl sm:text-2xl mb-0 sm:mb-6">flight</mat-icon>
                 <div>
-                  <h2 class="text-2xl font-bold">{{ flight.airline }}</h2>
-                  <p class="text-blue-200">Vol {{ flight.flightNumber }}</p>
+                  <h2 class="text-lg sm:text-2xl font-bold">{{ flight.airline }}</h2>
+                  <p class="text-blue-200 text-sm sm:text-base">Vol {{ flight.flightNumber }}</p>
                 </div>
               </div>
-              <div class="text-right">
-                <div class="text-3xl font-bold">{{ flight.price | price }}</div>
-                <div class="text-blue-200">par personne</div>
+              <div class="text-center sm:text-right">
+                <div class="text-2xl sm:text-3xl font-bold">{{ flight.price | price }}</div>
+                <div class="text-blue-200 text-sm sm:text-base">par personne</div>
               </div>
             </div>
           </div>
 
-          <div class="p-6">
+          <div class="p-4 sm:p-6">
             <!-- Main itinerary -->
-            <div class="flex items-center justify-between mb-8">
+            <div
+              class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-0 mb-6 sm:mb-8"
+            >
               <div class="text-center flex-1">
-                <div class="text-3xl font-bold text-blue-800 mb-1">
+                <div class="text-2xl sm:text-3xl font-bold text-blue-800 mb-1">
                   {{ flight.departureTime }}
                 </div>
-                <div class="text-xl font-semibold text-gray-800">{{ flight.departure }}</div>
-                <div class="text-gray-600">{{ flight.departureAirport }}</div>
-                <mat-chip class="mt-2 bg-blue-100 text-blue-800">Départ</mat-chip>
+                <div class="text-lg sm:text-xl font-semibold text-gray-800">
+                  {{ flight.departure }}
+                </div>
+                <div class="text-gray-600 text-sm sm:text-base">{{ flight.departureAirport }}</div>
+                <mat-chip class="mt-2 bg-blue-100 text-blue-800 text-xs sm:text-sm"
+                  >Départ</mat-chip
+                >
               </div>
 
-              <div class="flex-1 flex items-center justify-center px-8">
-                <div class="flex items-center gap-3 text-gray-400">
-                  <div class="h-px bg-gray-300 flex-1"></div>
-                  <div class="text-center">
-                    <mat-icon class="text-blue-500 text-2xl">flight_takeoff</mat-icon>
-                    <div class="text-sm font-semibold text-gray-600 mt-1">
+              <div class="flex-1 flex items-center justify-center px-2 sm:px-8">
+                <div class="flex items-center justify-center gap-2 sm:gap-3 text-gray-400 w-full">
+                  <div class="h-px bg-gray-300 flex-1 hidden sm:block"></div>
+                  <div class="flex flex-col items-center justify-center text-center flex-shrink-0">
+                    <mat-icon class="text-blue-500 text-xl sm:text-2xl mx-auto"
+                      >flight_takeoff</mat-icon
+                    >
+                    <div
+                      class="text-xs sm:text-sm font-semibold text-gray-600 mt-1 whitespace-nowrap"
+                    >
                       {{ flight.duration }}
                     </div>
-                    <div class="text-xs text-green-600 font-semibold">
+                    <div class="text-xs text-green-600 font-semibold whitespace-nowrap">
                       {{ flight.stops | flightStops }}
                     </div>
                   </div>
-                  <div class="h-px bg-gray-300 flex-1"></div>
+                  <div class="h-px bg-gray-300 flex-1 hidden sm:block"></div>
                 </div>
               </div>
 
               <div class="text-center flex-1">
-                <div class="text-3xl font-bold text-blue-800 mb-1">{{ flight.arrivalTime }}</div>
-                <div class="text-xl font-semibold text-gray-800">{{ flight.destination }}</div>
-                <div class="text-gray-600">{{ flight.destinationAirport }}</div>
-                <mat-chip class="mt-2 bg-green-100 text-green-800">Arrivée</mat-chip>
+                <div class="text-2xl sm:text-3xl font-bold text-blue-800 mb-1">
+                  {{ flight.arrivalTime }}
+                </div>
+                <div class="text-lg sm:text-xl font-semibold text-gray-800">
+                  {{ flight.destination }}
+                </div>
+                <div class="text-gray-600 text-sm sm:text-base">
+                  {{ flight.destinationAirport }}
+                </div>
+                <mat-chip class="mt-2 bg-green-100 text-green-800 text-xs sm:text-sm"
+                  >Arrivée</mat-chip
+                >
               </div>
             </div>
 
             <mat-divider class="mb-6"></mat-divider>
 
             <!-- Detailed information -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
               <div class="space-y-4">
                 <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
                   <mat-icon class="text-blue-600">info</mat-icon>
@@ -150,85 +168,88 @@ import { FlightStops } from '../../../shared/pipes/flight-stops.pipe';
             </div>
 
             <!-- Benefits and services -->
-            <div class="bg-gray-50 rounded-lg p-6 mb-8">
-              <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <div class="bg-gray-50 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
+              <h3
+                class="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"
+              >
                 <mat-icon class="text-blue-600">star</mat-icon>
                 Avantages inclus
               </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex items-center gap-3">
-                  <mat-icon class="text-green-600">check_circle</mat-icon>
-                  <span>Sélection du siège gratuite</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div class="flex items-center gap-2 sm:gap-3">
+                  <mat-icon class="text-green-600 text-sm sm:text-base">check_circle</mat-icon>
+                  <span class="text-sm sm:text-base">Sélection du siège gratuite</span>
                 </div>
-                <div class="flex items-center gap-3">
-                  <mat-icon class="text-green-600">check_circle</mat-icon>
-                  <span>Enregistrement en ligne</span>
+                <div class="flex items-center gap-2 sm:gap-3">
+                  <mat-icon class="text-green-600 text-sm sm:text-base">check_circle</mat-icon>
+                  <span class="text-sm sm:text-base">Enregistrement en ligne</span>
                 </div>
-                <div class="flex items-center gap-3">
-                  <mat-icon class="text-green-600">check_circle</mat-icon>
-                  <span>Modification gratuite sous 24h</span>
+                <div class="flex items-center gap-2 sm:gap-3">
+                  <mat-icon class="text-green-600 text-sm sm:text-base">check_circle</mat-icon>
+                  <span class="text-sm sm:text-base">Modification gratuite sous 24h</span>
                 </div>
-                <div class="flex items-center gap-3">
-                  <mat-icon class="text-green-600">check_circle</mat-icon>
-                  <span>Assurance annulation</span>
+                <div class="flex items-center gap-2 sm:gap-3">
+                  <mat-icon class="text-green-600 text-sm sm:text-base">check_circle</mat-icon>
+                  <span class="text-sm sm:text-base">Assurance annulation</span>
                 </div>
               </div>
             </div>
 
             <!-- Booking actions -->
-            <div class="flex flex-col md:flex-row gap-4 justify-center">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 mat-raised-button
                 color="primary"
                 size="large"
-                class="px-8 py-3 text-lg"
+                class="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 text-base sm:text-lg"
                 [routerLink]="['/booking', flight.id]"
               >
-                <mat-icon class="mr-2">flight</mat-icon>
-                Réserver ce vol - {{ flight.price | price }}
+                <mat-icon class="mr-2 text-base sm:text-lg">flight</mat-icon>
+                <span class="hidden sm:inline">Réserver ce vol - {{ flight.price | price }}</span>
+                <span class="sm:hidden">Réserver - {{ flight.price | price }}</span>
               </button>
             </div>
           </div>
         </mat-card>
 
         <!-- Advice and recommendations -->
-        <mat-card class="p-6 shadow-lg">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <mat-card class="p-4 sm:p-6 shadow-lg">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <mat-icon class="text-yellow-600">star_rate</mat-icon>
             Avis sur cette compagnie
           </h3>
-          <div class="flex items-center gap-4 mb-4">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
             <div class="flex items-center gap-1">
               @for (star of [1, 2, 3, 4]; track star) {
                 <mat-icon class="text-yellow-500">star</mat-icon>
               }
               <mat-icon class="text-gray-300">star</mat-icon>
             </div>
-            <span class="text-gray-600">4.2/5 basé sur 1,254 avis</span>
+            <span class="text-gray-600 text-sm sm:text-base">4.2/5 basé sur 1,254 avis</span>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
             <div>
-              <div class="text-2xl font-bold text-blue-600">8.5/10</div>
-              <div class="text-sm text-gray-600">Ponctualité</div>
+              <div class="text-xl sm:text-2xl font-bold text-blue-600">8.5/10</div>
+              <div class="text-xs sm:text-sm text-gray-600">Ponctualité</div>
             </div>
             <div>
-              <div class="text-2xl font-bold text-blue-600">8.1/10</div>
-              <div class="text-sm text-gray-600">Confort</div>
+              <div class="text-xl sm:text-2xl font-bold text-blue-600">8.1/10</div>
+              <div class="text-xs sm:text-sm text-gray-600">Confort</div>
             </div>
             <div>
-              <div class="text-2xl font-bold text-blue-600">7.9/10</div>
-              <div class="text-sm text-gray-600">Service</div>
+              <div class="text-xl sm:text-2xl font-bold text-blue-600">7.9/10</div>
+              <div class="text-xs sm:text-sm text-gray-600">Service</div>
             </div>
           </div>
         </mat-card>
       } @else {
-        <mat-card class="text-center p-12">
-          <mat-icon class="text-6xl text-gray-400 mb-4">flight_off</mat-icon>
-          <h3 class="text-2xl font-semibold text-gray-600 mb-2">Vol introuvable</h3>
-          <p class="text-gray-500 mb-6">
+        <mat-card class="text-center p-8 sm:p-12">
+          <mat-icon class="text-4xl sm:text-6xl text-gray-400 mb-4">flight_off</mat-icon>
+          <h3 class="text-xl sm:text-2xl font-semibold text-gray-600 mb-2">Vol introuvable</h3>
+          <p class="text-gray-500 mb-6 text-sm sm:text-base">
             Le vol que vous recherchez n'existe pas ou n'est plus disponible.
           </p>
-          <button mat-raised-button color="primary" (click)="goBack()">
+          <button mat-raised-button color="primary" (click)="goBack()" class="text-sm sm:text-base">
             Retour à la recherche
           </button>
         </mat-card>

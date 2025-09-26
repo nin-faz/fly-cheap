@@ -12,19 +12,23 @@ import { NotificationService } from '../../../shared/services/notification';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <div class="max-w-4xl mx-auto">
         <!-- Header -->
-        <div class="bg-white rounded-xl shadow-md border border-gray-100 p-8 mb-8">
-          <div class="flex items-center space-x-6">
+        <div
+          class="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8"
+        >
+          <div
+            class="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6"
+          >
             <div
-              class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg"
+              class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg"
             >
-              <span class="text-white text-2xl font-bold">{{ getInitials() }}</span>
+              <span class="text-white text-lg sm:text-2xl font-bold">{{ getInitials() }}</span>
             </div>
-            <div>
-              <h1 class="text-3xl font-bold text-gray-900 mb-2">Mon compte</h1>
-              <p class="text-gray-600 text-lg">Gérez vos informations personnelles</p>
+            <div class="text-center sm:text-left">
+              <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Mon compte</h1>
+              <p class="text-gray-600 text-base sm:text-lg">Gérez vos informations personnelles</p>
             </div>
           </div>
         </div>
@@ -32,13 +36,15 @@ import { NotificationService } from '../../../shared/services/notification';
         <!-- Account form -->
         @if (user()) {
           <div class="bg-white rounded-xl shadow-md border border-gray-100">
-            <div class="p-8">
+            <div class="p-4 sm:p-6 lg:p-8">
               <form #userForm="ngForm" (ngSubmit)="onSave()">
-                <h2 class="text-2xl font-bold text-gray-900 mb-8 pb-4 border-b border-gray-200">
+                <h2
+                  class="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8 pb-4 border-b border-gray-200"
+                >
                   Informations personnelles
                 </h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <div class="space-y-2">
                     <label for="name" class="block text-sm font-semibold text-gray-700">
                       Nom complet *
