@@ -30,10 +30,12 @@ import { PricePipe } from '../../../shared/pipes/price.pipe';
   ],
   template: `
     <!-- Hero section -->
-    <section class="relative pb-16 bg-gradient-to-br from-blue-50 to-blue-200 flex items-center">
-      <div class="container mx-auto px-6 text-center">
+    <section
+      class="relative pb-8 sm:pb-16 bg-gradient-to-br from-blue-50 to-blue-200 flex items-center"
+    >
+      <div class="container mx-auto px-4 sm:px-6 text-center">
         <div class="max-w-4xl mx-auto">
-          <p class="text-xl md:text-2xl text-blue-600 mb-12 font-medium">
+          <p class="text-lg sm:text-xl md:text-2xl text-blue-600 mb-8 sm:mb-12 font-medium px-4">
             Découvrez les vols les moins chers du monde entier
           </p>
 
@@ -41,19 +43,23 @@ import { PricePipe } from '../../../shared/pipes/price.pipe';
           <app-search-bar (searchFlights)="onSearchFlights($event)"></app-search-bar>
 
           <!-- Filter and sort -->
-          <div class="max-w-4xl mx-auto p-6">
-            <div class="flex items-center justify-between mb-8">
-              <div class="flex items-center gap-3">
-                <mat-icon class="text-blue-600 text-3xl">flight</mat-icon>
-                <h2 class="text-3xl font-bold text-blue-800">Vols disponibles</h2>
+          <div class="max-w-4xl mx-auto p-3 sm:p-6">
+            <div
+              class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 sm:mb-8"
+            >
+              <div class="flex items-center justify-center lg:justify-start gap-2 sm:gap-3">
+                <mat-icon class="text-blue-600 text-2xl sm:text-3xl">flight</mat-icon>
+                <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-800">
+                  Vols disponibles
+                </h2>
               </div>
 
-              <div class="flex items-center gap-4">
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                 <div class="relative">
                   <select
                     [ngModel]="sortBy()"
                     (ngModelChange)="onSortChange($event)"
-                    class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-48"
+                    class="appearance-none bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-48"
                   >
                     <option value="price">Prix croissant</option>
                     <option value="price-desc">Prix décroissant</option>
@@ -70,7 +76,7 @@ import { PricePipe } from '../../../shared/pipes/price.pipe';
                   <select
                     [ngModel]="filterBy()"
                     (ngModelChange)="onFilterChange($event)"
-                    class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-48"
+                    class="appearance-none bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-48"
                   >
                     <option value="all">Tous les vols</option>
                     <option value="direct">Vols directs</option>
@@ -90,10 +96,11 @@ import { PricePipe } from '../../../shared/pipes/price.pipe';
                   mat-stroked-button
                   color="primary"
                   (click)="resetFiltersAndSort()"
-                  class="px-4 py-2"
+                  class="px-3 sm:px-4 py-2 text-sm"
                 >
-                  <mat-icon class="mr-2">refresh</mat-icon>
-                  Réinitialiser
+                  <mat-icon class="mr-1 sm:mr-2 text-sm sm:text-base">refresh</mat-icon>
+                  <span class="hidden sm:inline">Réinitialiser</span>
+                  <span class="sm:hidden">Reset</span>
                 </button>
               </div>
             </div>
@@ -106,90 +113,98 @@ import { PricePipe } from '../../../shared/pipes/price.pipe';
     </section>
 
     <!-- Features section -->
-    <section class="py-16 bg-white">
-      <div class="container mx-auto px-6">
-        <h2 class="text-4xl font-bold text-center text-blue-800 mb-16">
+    <section class="py-12 sm:py-16 bg-white">
+      <div class="container mx-auto px-4 sm:px-6">
+        <h2
+          class="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-blue-800 mb-8 sm:mb-12 lg:mb-16"
+        >
           Pourquoi choisir FlyCheap ?
         </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <mat-card class="p-8 text-center items-center hover:shadow-xl transition-shadow">
-            <div class="flex gap-4">
-              <mat-icon class="text-blue-600 text-2xl">attach_money</mat-icon>
-              <h3 class="text-xl font-bold text-blue-800 mb-4">Prix imbattables</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          <mat-card class="p-6 sm:p-8 text-center items-center hover:shadow-xl transition-shadow">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-4">
+              <mat-icon class="text-blue-600 text-2xl sm:text-3xl">attach_money</mat-icon>
+              <h3 class="text-lg sm:text-xl font-bold text-blue-800">Prix imbattables</h3>
             </div>
-            <p class="text-gray-600">
+            <p class="text-gray-600 text-sm sm:text-base">
               Trouvez les vols les moins chers grâce à notre comparateur intelligent
             </p>
           </mat-card>
-          <mat-card class="p-8 text-center items-center hover:shadow-xl transition-shadow">
-            <div class="flex gap-4">
-              <mat-icon class="text-blue-600">public</mat-icon>
-              <h3 class="text-xl font-bold text-blue-800 mb-4">Destinations mondiales</h3>
+          <mat-card class="p-6 sm:p-8 text-center items-center hover:shadow-xl transition-shadow">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-4">
+              <mat-icon class="text-blue-600 text-2xl sm:text-3xl">public</mat-icon>
+              <h3 class="text-lg sm:text-xl font-bold text-blue-800">Destinations mondiales</h3>
             </div>
-            <p class="text-gray-600">
+            <p class="text-gray-600 text-sm sm:text-base">
               Plus de 1000 destinations dans le monde entier à votre portée
             </p>
           </mat-card>
-          <mat-card class="p-8 text-center items-center hover:shadow-xl transition-shadow">
-            <div class="flex gap-4">
-              <mat-icon class="text-blue-600">verified_user</mat-icon>
-              <h3 class="text-xl font-bold text-blue-800 mb-4">Réservation sécurisée</h3>
+          <mat-card class="p-6 sm:p-8 text-center items-center hover:shadow-xl transition-shadow">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-4">
+              <mat-icon class="text-blue-600 text-2xl sm:text-3xl">verified_user</mat-icon>
+              <h3 class="text-lg sm:text-xl font-bold text-blue-800">Réservation sécurisée</h3>
             </div>
-            <p class="text-gray-600">Paiement 100% sécurisé et assistance 24h/24</p>
+            <p class="text-gray-600 text-sm sm:text-base">
+              Paiement 100% sécurisé et assistance 24h/24
+            </p>
           </mat-card>
         </div>
       </div>
     </section>
 
     <!-- Popular destinations -->
-    <section class="py-16 bg-gradient-to-r from-blue-50 to-blue-100">
-      <div class="container mx-auto px-6">
-        <h2 class="text-4xl font-bold text-center text-blue-800 mb-16">Destinations populaires</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <section class="py-12 sm:py-16 bg-gradient-to-r from-blue-50 to-blue-100">
+      <div class="container mx-auto px-4 sm:px-6">
+        <h2
+          class="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-blue-800 mb-8 sm:mb-12 lg:mb-16"
+        >
+          Destinations populaires
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           <mat-card class="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
             <div
-              class="h-48 bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center"
+              class="h-36 sm:h-48 bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center"
             >
               <div class="text-center text-white">
-                <mat-icon class="text-4xl mb-2">location_city</mat-icon>
-                <h3 class="text-xl font-bold">Paris</h3>
+                <mat-icon class="text-3xl sm:text-4xl mb-2">location_city</mat-icon>
+                <h3 class="text-lg sm:text-xl font-bold">Paris</h3>
               </div>
             </div>
-            <div class="p-6">
-              <p class="text-gray-600 mb-4">La ville lumière vous attend</p>
-              <p class="text-2xl font-bold text-blue-600">
+            <div class="p-4 sm:p-6">
+              <p class="text-gray-600 mb-4 text-sm sm:text-base">La ville lumière vous attend</p>
+              <p class="text-xl sm:text-2xl font-bold text-blue-600">
                 À partir de {{ destinationPrices.paris | price }}
               </p>
             </div>
           </mat-card>
           <mat-card class="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
             <div
-              class="h-48 bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center"
+              class="h-36 sm:h-48 bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center"
             >
               <div class="text-center text-white">
-                <mat-icon class="text-4xl mb-2">nature_people</mat-icon>
-                <h3 class="text-xl font-bold">Tokyo</h3>
+                <mat-icon class="text-3xl sm:text-4xl mb-2">nature_people</mat-icon>
+                <h3 class="text-lg sm:text-xl font-bold">Tokyo</h3>
               </div>
             </div>
-            <div class="p-6">
-              <p class="text-gray-600 mb-4">Découvrez la culture japonaise</p>
-              <p class="text-2xl font-bold text-blue-600">
+            <div class="p-4 sm:p-6">
+              <p class="text-gray-600 mb-4 text-sm sm:text-base">Découvrez la culture japonaise</p>
+              <p class="text-xl sm:text-2xl font-bold text-blue-600">
                 À partir de {{ destinationPrices.tokyo | price }}
               </p>
             </div>
           </mat-card>
           <mat-card class="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
             <div
-              class="h-48 bg-gradient-to-r from-orange-400 to-red-600 flex items-center justify-center"
+              class="h-36 sm:h-48 bg-gradient-to-r from-orange-400 to-red-600 flex items-center justify-center"
             >
               <div class="text-center text-white">
-                <mat-icon class="text-4xl mb-2">wb_sunny</mat-icon>
-                <h3 class="text-xl font-bold">New York</h3>
+                <mat-icon class="text-3xl sm:text-4xl mb-2">wb_sunny</mat-icon>
+                <h3 class="text-lg sm:text-xl font-bold">New York</h3>
               </div>
             </div>
-            <div class="p-6">
-              <p class="text-gray-600 mb-4">La ville qui ne dort jamais</p>
-              <p class="text-2xl font-bold text-blue-600">
+            <div class="p-4 sm:p-6">
+              <p class="text-gray-600 mb-4 text-sm sm:text-base">La ville qui ne dort jamais</p>
+              <p class="text-xl sm:text-2xl font-bold text-blue-600">
                 À partir de {{ destinationPrices.newYork | price }}
               </p>
             </div>

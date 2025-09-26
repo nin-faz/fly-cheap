@@ -44,64 +44,82 @@ import { FlightStops } from '../../../shared/pipes/flight-stops.pipe';
     FlightStops,
   ],
   template: `
-    <div class="max-w-5xl mx-auto px-6">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
       <!-- Header -->
-      <div class="flex items-center gap-4 mb-8">
-        <button mat-icon-button (click)="goBack()" class="text-blue-600">
-          <mat-icon>arrow_back</mat-icon>
+      <div class="flex items-start gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <button mat-icon-button (click)="goBack()" style="padding: 0">
+          <mat-icon class="text-blue-600 p-0">arrow_back</mat-icon>
         </button>
         <div>
-          <h1 class="text-3xl font-bold text-blue-800">Réserver votre vol</h1>
-          <p class="text-gray-600">Complétez votre réservation en quelques étapes</p>
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-800">
+            Réserver votre vol
+          </h1>
+          <p class="text-gray-600 text-sm sm:text-base">
+            Complétez votre réservation en quelques étapes
+          </p>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         <!-- Form main -->
         <div class="lg:col-span-2 space-y-6">
           <!-- Recap flight -->
-          <mat-card class="mb-8 overflow-hidden shadow-2xl">
-            <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                  <mat-icon class="text-2xl mb-6">flight</mat-icon>
+          <mat-card class="mb-6 sm:mb-8 overflow-hidden shadow-2xl">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 sm:p-6">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-3 sm:gap-4">
+                  <mat-icon class="text-xl sm:text-2xl mb-0 sm:mb-6">flight</mat-icon>
                   <div>
-                    <h2 class="text-2xl font-bold">{{ flight?.airline }}</h2>
-                    <p class="text-blue-200">Vol {{ flight?.flightNumber }}</p>
+                    <h2 class="text-lg sm:text-2xl font-bold">{{ flight?.airline }}</h2>
+                    <p class="text-blue-200 text-sm sm:text-base">Vol {{ flight?.flightNumber }}</p>
                   </div>
                 </div>
-                <div class="text-right">
-                  <div class="text-3xl font-bold">{{ flight?.price | price }}</div>
-                  <div class="text-blue-200">par personne</div>
+                <div class="text-center sm:text-right">
+                  <div class="text-2xl sm:text-3xl font-bold">{{ flight?.price | price }}</div>
+                  <div class="text-blue-200 text-sm sm:text-base">par personne</div>
                 </div>
               </div>
             </div>
 
-            <div class="p-6">
+            <div class="p-4 sm:p-6">
               <!-- Main itinerary -->
-              <div class="flex items-center justify-between mb-8">
+              <div
+                class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-0 mb-6 sm:mb-8"
+              >
                 <div class="text-center flex-1">
-                  <div class="text-3xl font-bold text-blue-800 mb-1">
+                  <div class="text-2xl sm:text-3xl font-bold text-blue-800 mb-1">
                     {{ flight?.departureTime }}
                   </div>
-                  <div class="text-xl font-semibold text-gray-800">{{ flight?.departure }}</div>
-                  <div class="text-gray-600">{{ flight?.departureAirport }}</div>
-                  <mat-chip class="mt-2 bg-blue-100 text-blue-800">Départ</mat-chip>
+                  <div class="text-lg sm:text-xl font-semibold text-gray-800">
+                    {{ flight?.departure }}
+                  </div>
+                  <div class="text-gray-600 text-sm sm:text-base">
+                    {{ flight?.departureAirport }}
+                  </div>
+                  <mat-chip class="mt-2 bg-blue-100 text-blue-800 text-xs sm:text-sm"
+                    >Départ</mat-chip
+                  >
                 </div>
 
-                <div class="flex-1 flex items-center justify-center px-8">
-                  <div class="flex items-center gap-3 text-gray-400">
-                    <div class="h-px bg-gray-300 flex-1"></div>
-                    <div class="text-center">
-                      <mat-icon class="text-blue-500 text-2xl">flight_takeoff</mat-icon>
-                      <div class="text-sm font-semibold text-gray-600 mt-1">
+                <div class="flex-1 flex items-center justify-center px-2 sm:px-8">
+                  <div class="flex items-center justify-center gap-2 sm:gap-3 text-gray-400 w-full">
+                    <div class="h-px bg-gray-300 flex-1 hidden sm:block"></div>
+                    <div
+                      class="flex flex-col items-center justify-center text-center flex-shrink-0"
+                    >
+                      <mat-icon class="text-blue-500 text-xl sm:text-2xl mx-auto"
+                        >flight_takeoff</mat-icon
+                      >
+                      <div
+                        class="text-xs sm:text-sm font-semibold text-gray-600 mt-1 whitespace-nowrap"
+                      >
                         {{ flight?.duration }}
                       </div>
-                      <div class="text-xs text-green-600 font-semibold">
+                      <div class="text-xs text-green-600 font-semibold whitespace-nowrap">
                         {{ flight?.stops | flightStops }}
                       </div>
                     </div>
-                    <div class="h-px bg-gray-300 flex-1"></div>
+                    <div class="h-px bg-gray-300 flex-1 hidden sm:block"></div>
                   </div>
                 </div>
 
@@ -164,7 +182,7 @@ import { FlightStops } from '../../../shared/pipes/flight-stops.pipe';
 
             <div class="space-y-4">
               <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                <div class="flex items-center gap-3">
+                <div class="flex gap-3">
                   <mat-icon class="text-blue-600">luggage</mat-icon>
                   <div>
                     <div class="font-semibold">Bagage en soute (23kg)</div>
@@ -178,7 +196,7 @@ import { FlightStops } from '../../../shared/pipes/flight-stops.pipe';
               </div>
 
               <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                <div class="flex items-center gap-3">
+                <div class="flex gap-3">
                   <mat-icon class="text-blue-600">airline_seat_recline_extra</mat-icon>
                   <div>
                     <div class="font-semibold">Siège avec espace supplémentaire</div>
@@ -192,7 +210,7 @@ import { FlightStops } from '../../../shared/pipes/flight-stops.pipe';
               </div>
 
               <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                <div class="flex items-center gap-3">
+                <div class="flex gap-3">
                   <mat-icon class="text-blue-600">restaurant</mat-icon>
                   <div>
                     <div class="font-semibold">Repas à bord</div>

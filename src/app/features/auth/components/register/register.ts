@@ -48,17 +48,21 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
     MatIconModule,
   ],
   template: `
-    <div class="min-h-screen flex items-center justify-center">
-      <mat-card class="w-full max-w-md p-8 pt-16 shadow-xl rounded-2xl">
-        <div class="flex flex-col items-center mb-8">
-          <div class="bg-white rounded-full absolute z-20 shadow-lg p-3 -mt-32">
-            <img src="assets/logo-fly.png" alt="Logo FlyCheap" class="h-24 w-24 object-contain" />
+    <div class="min-h-screen flex items-center justify-center px-4 sm:px-6 py-8">
+      <mat-card class="w-full max-w-sm sm:max-w-md p-6 sm:p-8 pt-12 sm:pt-16 shadow-xl rounded-2xl">
+        <div class="flex flex-col items-center mb-6 sm:mb-8">
+          <div class="bg-white rounded-full absolute z-20 shadow-lg p-2 sm:p-3 -mt-24 sm:-mt-32">
+            <img
+              src="assets/logo-fly.png"
+              alt="Logo FlyCheap"
+              class="h-16 w-16 sm:h-24 sm:w-24 object-contain"
+            />
           </div>
-          <span class="text-base text-blue-500 font-medium pt-5"
+          <span class="text-sm sm:text-base text-blue-500 font-medium pt-4 sm:pt-5 text-center px-2"
             >Créer ton compte pour voyager moins cher !</span
           >
         </div>
-        <form [formGroup]="registerForm" class="space-y-6">
+        <form [formGroup]="registerForm" class="space-y-4 sm:space-y-6">
           <mat-form-field appearance="fill" class="w-full">
             <mat-label>Nom complet</mat-label>
             <input matInput type="text" formControlName="name" />
