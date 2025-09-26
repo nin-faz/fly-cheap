@@ -123,7 +123,7 @@ import { PricePipe } from '../../../shared/pipes/price.pipe';
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           <mat-card class="p-6 sm:p-8 text-center items-center hover:shadow-xl transition-shadow">
             <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-4">
-              <mat-icon class="text-blue-600 text-2xl sm:text-3xl">attach_money</mat-icon>
+              <mat-icon class="text-blue-600 text-2xl mb-1.5">attach_money</mat-icon>
               <h3 class="text-lg sm:text-xl font-bold text-blue-800">Prix imbattables</h3>
             </div>
             <p class="text-gray-600 text-sm sm:text-base">
@@ -132,7 +132,7 @@ import { PricePipe } from '../../../shared/pipes/price.pipe';
           </mat-card>
           <mat-card class="p-6 sm:p-8 text-center items-center hover:shadow-xl transition-shadow">
             <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-4">
-              <mat-icon class="text-blue-600 text-2xl sm:text-3xl">public</mat-icon>
+              <mat-icon class="text-blue-600 text-xl mb-1">public</mat-icon>
               <h3 class="text-lg sm:text-xl font-bold text-blue-800">Destinations mondiales</h3>
             </div>
             <p class="text-gray-600 text-sm sm:text-base">
@@ -141,7 +141,7 @@ import { PricePipe } from '../../../shared/pipes/price.pipe';
           </mat-card>
           <mat-card class="p-6 sm:p-8 text-center items-center hover:shadow-xl transition-shadow">
             <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-4">
-              <mat-icon class="text-blue-600 text-2xl sm:text-3xl">verified_user</mat-icon>
+              <mat-icon class="text-blue-600 text-xl mb-1">verified_user</mat-icon>
               <h3 class="text-lg sm:text-xl font-bold text-blue-800">Réservation sécurisée</h3>
             </div>
             <p class="text-gray-600 text-sm sm:text-base">
